@@ -1,10 +1,13 @@
 node_modules
 .next
+.open-next
+.wrangler
 out
 dist
 .DS_Store
 *.pem
 .env*.local
+.dev.vars
 npm-debug.log*
 .vercel
 next-env.d.ts
