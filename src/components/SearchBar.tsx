@@ -32,29 +32,29 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
   return (
     <form
       onSubmit={onSubmit}
-      className="relative z-20 mx-auto w-full max-w-[1120px] overflow-visible rounded-[18px] border border-border bg-white shadow-[0_16px_40px_rgba(7,16,12,0.16)]"
+      className="relative z-20 mx-auto w-full max-w-[1120px] overflow-visible rounded-[22px] border border-border/80 bg-white/95 shadow-[0_22px_60px_rgba(7,16,12,0.13)] backdrop-blur-sm"
     >
       <div className="flex flex-col lg:flex-row lg:items-stretch">
-        <SearchField icon={MapPin} label="Destination" className="lg:border-r lg:border-border">
+        <SearchField icon={MapPin} label="Destination" className="lg:border-r lg:border-border/80">
           <input
             value={destination}
             onChange={(event) => setDestination(event.target.value)}
             placeholder="Where are you going?"
-            className="w-full bg-transparent text-sm text-ink-soft outline-none placeholder:text-muted"
+            className="w-full bg-transparent text-sm font-medium text-ink-soft outline-none placeholder:text-muted"
             name="destination"
           />
         </SearchField>
-        <SearchField icon={CalendarDays} label="Check-in" className="border-t border-border lg:border-t-0 lg:border-r">
+        <SearchField icon={CalendarDays} label="Check-in" className="border-t border-border/80 lg:border-t-0 lg:border-r">
           <DateInput value={checkIn} onChange={setCheckIn} label="Check-in date" />
         </SearchField>
-        <SearchField icon={CalendarDays} label="Check-out" className="border-t border-border lg:border-t-0 lg:border-r">
+        <SearchField icon={CalendarDays} label="Check-out" className="border-t border-border/80 lg:border-t-0 lg:border-r">
           <DateInput value={checkOut} onChange={setCheckOut} label="Check-out date" />
         </SearchField>
-        <div className="relative flex min-w-0 flex-1 items-center border-t border-border lg:border-t-0 lg:border-r">
+        <div className="relative flex min-w-0 flex-1 items-center border-t border-border/80 lg:border-t-0 lg:border-r">
           <SearchField icon={Users} label="Guests & Rooms">
             <button
               type="button"
-              className="flex w-full items-center justify-between text-left text-sm text-ink-soft"
+              className="flex w-full items-center justify-between text-left text-sm font-medium text-ink-soft"
               onClick={() => setGuestOpen((open) => !open)}
             >
               <span>
@@ -64,7 +64,7 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
             </button>
           </SearchField>
           {guestOpen ? (
-            <div className="absolute left-4 right-4 top-[72px] z-30 rounded-xl border border-border bg-white p-4 shadow-lg lg:left-0 lg:right-auto lg:w-64">
+            <div className="absolute left-4 right-4 top-[80px] z-30 rounded-2xl border border-border bg-white p-4 shadow-[0_18px_40px_rgba(7,16,12,0.12)] lg:left-0 lg:right-auto lg:w-64">
               <Stepper label="Guests" value={guests} min={1} onChange={setGuests} />
               <Stepper label="Rooms" value={rooms} min={1} onChange={setRooms} />
             </div>
@@ -73,7 +73,7 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
         <div className="p-3">
           <button
             type="submit"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white hover:bg-brand-dark lg:h-full lg:min-w-[132px]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white transition hover:bg-brand-dark lg:h-full lg:min-w-[132px]"
           >
             <Search className="h-4 w-4" />
             Search

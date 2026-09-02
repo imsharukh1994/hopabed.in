@@ -48,11 +48,17 @@ export function TrustFeature({
 
 export function TrustSection() {
   return (
-    <section className="bg-mint">
-      <div className="container-page grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map((feature) => (
-          <TrustFeature key={feature.title} {...feature} />
-        ))}
+    <section className="bg-mint/80 py-10 sm:py-12">
+      <div className="container-page">
+        <div className="mb-7 text-center sm:text-left">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">Why travelers choose us</p>
+          <h2 className="text-2xl font-bold tracking-[-0.03em] text-ink-soft sm:text-3xl">Travel with confidence</h2>
+        </div>
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURES.map((feature) => (
+            <TrustFeature key={feature.title} {...feature} />
+          ))}
+        </div>
       </div>
     </section>
   );

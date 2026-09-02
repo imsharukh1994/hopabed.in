@@ -16,7 +16,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #fff;
+  background: #f5f8f6;
   color: var(--color-ink-soft);
   overflow-x: clip;
 }
@@ -24,10 +24,16 @@ body {
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-image: linear-gradient(to bottom, rgba(11, 143, 60, 0.03), transparent 220px);
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 a {
@@ -43,6 +49,11 @@ select {
 
 img {
   max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: rgba(11, 143, 60, 0.18);
 }
 
 .container-page {

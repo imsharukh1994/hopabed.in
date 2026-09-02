@@ -48,10 +48,13 @@ export function StayTypeCard({
 
 export function StayTypeSection() {
   return (
-    <section className="container-page pt-10 pb-6">
-      <div className="mb-5 flex items-end justify-between">
-        <h2 className="text-2xl font-bold text-ink-soft">Browse by stay type</h2>
-        <Link href="/stays" className="text-sm font-medium text-brand">
+    <section className="container-page pb-6 pt-10 sm:pt-12">
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">Stay types</p>
+          <h2 className="text-2xl font-bold tracking-[-0.03em] text-ink-soft sm:text-3xl">Browse by stay type</h2>
+        </div>
+        <Link href="/stays" className="text-sm font-semibold text-brand transition hover:text-brand-dark">
           View all →
         </Link>
       </div>
