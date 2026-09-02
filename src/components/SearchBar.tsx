@@ -32,7 +32,7 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
   return (
     <form
       onSubmit={onSubmit}
-      className="relative z-20 mx-auto w-full max-w-[1120px] overflow-visible rounded-[22px] border border-border/80 bg-white/95 shadow-[0_22px_60px_rgba(7,16,12,0.13)] backdrop-blur-sm"
+      className="relative z-20 mx-auto w-full overflow-visible rounded-[24px] border border-border/80 bg-white/95 shadow-[0_10px_24px_rgba(7,16,12,0.06)]"
     >
       <div className="flex flex-col lg:flex-row lg:items-stretch">
         <SearchField icon={MapPin} label="Destination" className="lg:border-r lg:border-border/80">

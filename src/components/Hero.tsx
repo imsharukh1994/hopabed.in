@@ -8,23 +8,24 @@ const HERO_IMAGE =
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-ink">
+    <section className="relative overflow-hidden bg-[#07100c]">
       <div className="relative overflow-hidden">
         <Image
           src={HERO_IMAGE}
           alt="Premium stay with mountain views"
           fill
           priority
-          className="object-cover"
+          className="object-cover opacity-90"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/30" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_36%)]" />
-        <div className="relative container-page pb-24 pt-16 sm:pt-20 lg:pb-28 lg:pt-[90px]">
-          <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#07100c] via-[#07100c]/80 to-[#07100c]/35" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_30%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#f7fbf8] to-transparent" />
+        <div className="relative container-page pb-28 pt-16 sm:pt-20 lg:pb-32 lg:pt-[90px]">
+          <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/7 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm">
             Launching Soon — Verified Stays
           </p>
-          <h1 className="max-w-2xl text-[32px] font-bold leading-[1.08] tracking-[-0.04em] text-white sm:text-5xl lg:text-[58px]">
+          <h1 className="max-w-2xl text-[32px] font-bold leading-[1.06] tracking-[-0.05em] text-white sm:text-5xl lg:text-[58px]">
             Find, Book & Verify
             <span className="mt-2 block">
               <span className="text-brand">Verified Stays</span> in India.
@@ -41,7 +42,9 @@ export function Hero() {
         </div>
       </div>
       <div className="relative z-20 -mt-12 px-4 sm:-mt-14 lg:-mt-16">
-        <SearchBar />
+        <div className="mx-auto max-w-[1120px] rounded-[28px] border border-black/5 bg-white/95 p-1 shadow-[0_24px_60px_rgba(7,16,12,0.18)] backdrop-blur-sm">
+          <SearchBar />
+        </div>
       </div>
     </section>
   );

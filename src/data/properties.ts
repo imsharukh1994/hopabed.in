@@ -15,6 +15,22 @@ export type Property = {
 
 export const properties: Property[] = [
   {
+    id: "mumbai-riverfront-stay",
+    name: "Mumbai Riverfront Stay",
+    location: "Navi Mumbai, Maharashtra",
+    city: "Mumbai",
+    state: "Maharashtra",
+    rating: 4.7,
+    reviewCount: 142,
+    pricePerNight: 3899,
+    type: "apartments",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    badge: "Popular in Mumbai",
+    description:
+      "A well-located apartment stay near Navi Mumbai for quick getaways and business trips.",
+  },
+  {
     id: "lake-view-resort",
     name: "The Lake View Resort",
     location: "Udaipur, Rajasthan",
