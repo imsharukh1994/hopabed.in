@@ -1,11 +1,24 @@
 import cors from 'cors';
 import express, { type Request, type Response, type NextFunction } from 'express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { connectDatabase } from './config/database.js';
 import healthRouter from './routes/health.js';
+import authRouter from './routes/auth.js';
 
-const app = express();
+export const app = express();
 
+app.disable('x-powered-by');
+app.use(helmet());
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 300,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+  })
+);
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
@@ -13,7 +26,7 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (_req: Request, res: Response) => {
@@ -24,6 +37,7 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 app.use('/health', healthRouter);
+app.use('/api/auth', authRouter);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled server error:', err);
@@ -46,4 +60,6 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-startServer();
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}

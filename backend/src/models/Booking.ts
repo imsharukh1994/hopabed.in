@@ -4,6 +4,7 @@ export interface IBooking {
   property: Types.ObjectId;
   guest: Types.ObjectId;
   host: Types.ObjectId;
+  room: Types.ObjectId;
   checkIn: Date;
   checkOut: Date;
   nights: number;
@@ -26,6 +27,7 @@ const bookingSchema = new Schema<IBooking>(
     property: { type: Schema.Types.ObjectId, ref: 'Property', required: true },
     guest: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     host: { type: Schema.Types.ObjectId, ref: 'Host', required: true },
+    room: { type: Schema.Types.ObjectId, ref: 'Room', required: true },
     checkIn: { type: Date, required: true },
     checkOut: { type: Date, required: true },
     nights: { type: Number, required: true, min: 1 },
@@ -46,6 +48,7 @@ const bookingSchema = new Schema<IBooking>(
 );
 
 bookingSchema.index({ property: 1, checkIn: 1, checkOut: 1 });
+bookingSchema.index({ room: 1, status: 1, checkIn: 1, checkOut: 1 });
 bookingSchema.index({ guest: 1, status: 1, createdAt: -1 });
 bookingSchema.index({ host: 1, status: 1, checkIn: 1 });
 

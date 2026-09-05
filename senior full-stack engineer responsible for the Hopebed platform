@@ -1,0 +1,468 @@
+You are the senior full-stack engineer responsible for the Hopebed platform.
+
+Website:
+https://hopabedin.mithagaris.workers.dev/
+
+Production domain:
+https://hopebed.in/
+
+GitHub/codebase:
+https://github.com/imsharukh1994/hopabed_phase1_full_code.git
+
+PROJECT GOAL
+Turn Hopebed from the current frontend/demo website into a working MVP booking platform.
+
+Brand:
+Hopebed
+Tagline: “Stay Smart. Stay Verified.”
+
+Core flow:
+Find → Book → Verify
+
+IMPORTANT
+Do NOT redesign the entire website.
+Do NOT replace working UI unnecessarily.
+First audit the existing code, architecture, routes, APIs, database configuration, environment variables, and deployment.
+Reuse existing components and functionality wherever possible.
+
+CURRENT PROBLEMS TO SOLVE
+
+1. INFRASTRUCTURE
+- Determine exactly where the frontend is hosted.
+- Determine where the backend/API is hosted.
+- Determine whether Cloudflare Workers/Pages are being used and for what.
+- Determine whether an Azure VM is actually required.
+- Avoid using an Azure Windows VM only for MongoDB.
+- Prefer a low-cost/free architecture where practical.
+- Evaluate MongoDB Atlas M0 for development/MVP and determine whether its 512 MB limit is sufficient for current structured data.
+- Do NOT store property images/videos/documents directly in MongoDB.
+- Verify Cloudflare DNS, HTTPS, API routing, environment variables and deployment.
+- Identify any unnecessary Azure resources that can be removed to reduce cost.
+
+2. DATABASE
+Use MongoDB unless the existing architecture clearly requires something else.
+Create/verify proper collections/models for:
+- users
+- hosts
+- properties
+- rooms
+- beds/inventory if required
+- availability
+- bookings
+- payments
+- reviews
+- verification/stay passes
+- cancellations/refunds
+- admin/audit records
+
+Implement:
+- proper indexes
+- unique constraints where appropriate
+- timestamps
+- validation
+- secure database credentials
+- production-safe connection handling
+- error handling
+- backup strategy
+
+3. BACKEND
+Audit all existing APIs and complete the backend.
+
+Required functionality:
+- User registration/login
+- Authentication/session handling
+- User roles
+- Host registration
+- Property creation/update
+- Property verification status
+- Room/bed inventory
+- Pricing
+- Availability
+- Search
+- Property details
+- Booking creation
+- Booking confirmation
+- Booking cancellation
+- Payment record creation
+- Payment status updates
+- Stay Pass generation
+- QR verification
+- Admin APIs
+
+Use a clean API structure.
+Do not create duplicate APIs if working APIs already exist.
+
+4. BOOKING ENGINE
+Build a real booking workflow:
+
+User
+→ Search property
+→ Select room/bed
+→ Check availability
+→ Create temporary reservation if needed
+→ Payment
+→ Confirm booking
+→ Generate Stay Pass
+→ Generate QR
+→ Verification
+
+Critical:
+- Prevent double booking.
+- Use server-side availability checks.
+- Do not trust frontend prices or availability.
+- Store booking snapshots such as price/property/room details so historical bookings remain correct.
+- Handle failed payment safely.
+- Handle cancellation correctly.
+- Make booking status transitions explicit.
+
+Suggested statuses:
+PENDING
+PAYMENT_PENDING
+CONFIRMED
+CANCELLED
+COMPLETED
+REFUNDED
+FAILED
+
+5. PAYMENT
+Cashfree has rejected the current Hopebed payment-gateway application.
+
+Do NOT hard-code Cashfree.
+Create a payment abstraction/service layer so the gateway can be changed.
+
+Prepare integration for:
+- Razorpay
+- PayU
+- Cashfree if later approved
+
+Requirements:
+- Create payment order
+- Redirect/checkout
+- Payment success
+- Payment failure
+- Webhook verification
+- Idempotency
+- Payment/booking synchronization
+- Refund foundation
+- Transaction records
+- Never mark a booking as paid only from frontend success response
+
+Do not activate a real gateway with fake credentials.
+Use environment variables.
+
+6. HOST / PROPERTY SYSTEM
+Implement the real host workflow:
+
+Host signup
+→ Host profile
+→ Property submission
+→ Property verification
+→ Add rooms/beds
+→ Pricing
+→ Availability
+→ Receive bookings
+→ View booking details
+→ Earnings/settlement information
+
+Property should have a verification state:
+DRAFT
+PENDING_REVIEW
+VERIFIED
+REJECTED
+SUSPENDED
+
+Demo properties must NOT be treated as real bookable inventory.
+
+7. ADMIN SYSTEM
+Create/complete an admin dashboard for:
+- Users
+- Hosts
+- Properties
+- Property verification
+- Rooms/inventory
+- Bookings
+- Payments
+- Cancellations/refunds
+- Stay verification
+- Audit logs
+
+Admin must have proper authentication and authorization.
+
+8. STAY PASS / QR VERIFICATION
+Implement Hopebed's key differentiator:
+
+After confirmed booking:
+- Generate digital Stay Pass
+- Unique booking/stay-pass ID
+- QR code
+- Guest information
+- Property information
+- Room/bed information
+- Check-in/check-out
+- Verification status
+
+QR workflow:
+Host/staff scans QR
+→ Backend validates QR
+→ Shows booking/property/guest verification result
+→ Prevent replay or unauthorized modification
+
+Do not put sensitive information directly inside a reversible/public QR payload.
+
+9. FRONTEND
+Keep the existing Hopebed design and improve only where necessary.
+
+Audit all current pages.
+
+Home
+Search
+Property listing
+Property details
+Login
+Signup
+Booking
+Payment
+Booking confirmation
+Stay Pass
+Host
+Host dashboard
+Admin
+Contact
+Help
+Terms
+Privacy
+Cancellation/Refund
+
+Replace demo/static data with API-backed data.
+
+The current site contains demo listings/placeholders.
+Clearly separate:
+- demo/development mode
+- real verified properties
+
+Do not accidentally show demo properties as live partner properties.
+
+10. LEGAL / PAYMENT-GATEWAY READINESS
+The following pages must contain proper real content before production/payment-gateway review:
+- Terms & Conditions
+- Privacy Policy
+- Cancellation & Refund Policy
+- Contact/Support
+- Host Terms/Agreement if required
+
+Do not claim legal compliance automatically.
+Use clear placeholders where legal review is required.
+
+11. SECURITY
+Implement production security:
+- HTTPS
+- secure cookies/tokens
+- password hashing
+- authentication middleware
+- role-based authorization
+- input validation
+- rate limiting where appropriate
+- CORS configured correctly
+- secure headers
+- no secrets in source code
+- .env / secret management
+- MongoDB not publicly exposed
+- admin endpoints protected
+- payment webhooks verified
+- audit logging
+- safe error responses
+- dependency/security review
+
+12. IMAGE / FILE STORAGE
+Do not store large images in MongoDB.
+
+Use an appropriate object-storage solution for:
+- property photos
+- verification documents
+- other large files
+
+Store only URLs/metadata in MongoDB.
+
+13. COST OPTIMIZATION
+Hopebed is currently an early-stage startup and infrastructure cost must stay low.
+
+Prioritize:
+- Free/low-cost services
+- Reuse existing infrastructure
+- Avoid unnecessary Azure VMs
+- Avoid a separate Windows VM solely for MongoDB
+- MongoDB Atlas M0 for MVP/testing where suitable
+- Cloudflare free services where practical
+
+Do not deploy paid infrastructure without explaining why it is required.
+
+14. AUDIT FIRST
+Before modifying code, produce an audit with:
+
+A. Current frontend architecture
+B. Current backend architecture
+C. Current database architecture
+D. Current deployment architecture
+E. Current Cloudflare configuration
+F. Current Azure resources
+G. Existing APIs/routes
+H. Existing authentication
+I. Existing booking logic
+J. Existing payment logic
+K. Existing host functionality
+L. Existing admin functionality
+M. Existing security issues
+N. Existing demo/placeholders
+O. Exact blockers preventing production launch
+
+Mark every item:
+DONE
+WORKING
+PARTIAL
+BROKEN
+MISSING
+
+15. DO NOT GUESS
+If something is unclear:
+- inspect the code
+- inspect configuration
+- inspect deployment
+- inspect API responses/logs
+- verify before changing it
+
+Do not invent APIs, database fields, credentials, infrastructure or payment configuration.
+
+16. IMPLEMENTATION PRIORITY
+
+Work in this order:
+
+PHASE 1
+Infrastructure
+Database
+Cloudflare
+Deployment
+Environment variables
+Security baseline
+
+PHASE 2
+Backend
+Authentication
+Users
+Hosts
+Properties
+Inventory
+Availability
+
+PHASE 3
+Booking engine
+Booking status
+Double-booking prevention
+Cancellation
+
+PHASE 4
+Payment abstraction
+Gateway integration
+Webhook handling
+Refund foundation
+
+PHASE 5
+Host dashboard
+Admin dashboard
+Verification workflow
+
+PHASE 6
+Stay Pass
+QR verification
+
+PHASE 7
+Legal pages
+Production testing
+Monitoring
+Backup
+Launch readiness
+
+17. TESTING
+For every major feature, test:
+- success case
+- failure case
+- unauthorized access
+- invalid input
+- duplicate requests
+- network/API failure
+- database failure
+- payment failure
+- cancellation
+- concurrency/double booking
+
+Create an end-to-end test:
+
+Customer
+→ Website
+→ Search
+→ Property
+→ Availability
+→ Booking
+→ Payment
+→ Confirmation
+→ Stay Pass
+→ QR verification
+
+Host:
+→ Login
+→ Property
+→ Verification
+→ Inventory
+→ Booking
+
+Admin:
+→ Login
+→ Verify property
+→ Manage booking
+→ View payment
+→ Audit activity
+
+18. OUTPUT REQUIRED
+
+At the beginning:
+1. Give me the complete audit.
+2. Give me a table of DONE / PARTIAL / BROKEN / MISSING.
+3. Give me the architecture you recommend.
+4. Give me the cheapest practical infrastructure architecture.
+5. Give me the exact order of implementation.
+
+While implementing:
+- Explain each important change before making it.
+- Make small, verifiable changes.
+- Do not break working functionality.
+- Test after each major change.
+
+At the end:
+Provide:
+- completed work
+- remaining work
+- changed files
+- database changes
+- API changes
+- environment variables required
+- deployment steps
+- security checklist
+- testing results
+- launch blockers
+- estimated production readiness percentage
+
+FINAL TARGET
+
+The target is not just a nice-looking website.
+
+The target is a working Hopebed MVP where:
+
+Customer:
+Find → Book → Pay → Receive Stay Pass → Verify
+
+Host:
+Register → Add Property → Get Verified → Manage Inventory → Receive Bookings
+
+Admin:
+Review → Verify → Manage → Monitor
+
+And the complete system runs reliably with the lowest practical infrastructure cost.

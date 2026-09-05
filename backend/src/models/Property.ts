@@ -13,6 +13,10 @@ export interface IProperty {
   address: string;
   latitude?: number;
   longitude?: number;
+  location?: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
   bedrooms: number;
   bathrooms: number;
   maxGuests: number;
@@ -24,6 +28,7 @@ export interface IProperty {
   isVerified: boolean;
   isPublished: boolean;
   isFeatured: boolean;
+  verificationStatus: 'DRAFT' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'SUSPENDED';
   primaryImage?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -53,6 +58,20 @@ const propertySchema = new Schema<IProperty>(
     address: { type: String, required: true, trim: true },
     latitude: { type: Number, min: -90, max: 90 },
     longitude: { type: Number, min: -180, max: 180 },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number],
+        validate: {
+          validator: (value: number[]) => value.length === 2,
+          message: 'Location coordinates must contain longitude and latitude.',
+        },
+      },
+    },
     bedrooms: { type: Number, required: true, min: 0 },
     bathrooms: { type: Number, required: true, min: 1 },
     maxGuests: { type: Number, required: true, min: 1 },
@@ -64,6 +83,11 @@ const propertySchema = new Schema<IProperty>(
     isVerified: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
     isFeatured: { type: Boolean, default: false },
+    verificationStatus: {
+      type: String,
+      enum: ['DRAFT', 'PENDING_REVIEW', 'VERIFIED', 'REJECTED', 'SUSPENDED'],
+      default: 'DRAFT',
+    },
     primaryImage: { type: String, trim: true },
   },
   { timestamps: true }

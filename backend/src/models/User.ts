@@ -5,6 +5,8 @@ export interface IUser {
   email: string;
   phone?: string;
   passwordHash?: string;
+  googleId?: string;
+  authProvider: 'password' | 'google';
   role: 'guest' | 'host' | 'admin';
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
@@ -33,6 +35,8 @@ const userSchema = new Schema<IUser>(
       match: [/^\+?[0-9\s-]{8,15}$/, 'Invalid phone number format'],
     },
     passwordHash: { type: String, select: false },
+    googleId: { type: String, select: false, sparse: true, unique: true },
+    authProvider: { type: String, enum: ['password', 'google'], default: 'password' },
     role: {
       type: String,
       enum: ['guest', 'host', 'admin'],

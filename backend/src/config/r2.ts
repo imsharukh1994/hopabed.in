@@ -1,15 +1,25 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { env } from './env.js';
 
-export const r2Client = new S3Client({
-  region: env.R2_REGION,
-  endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: env.R2_ACCESS_KEY_ID,
-    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-  },
-  forcePathStyle: false,
-});
+const r2IsConfigured = Boolean(
+  env.R2_ACCOUNT_ID &&
+    env.R2_BUCKET_NAME &&
+    env.R2_ACCESS_KEY_ID &&
+    env.R2_SECRET_ACCESS_KEY &&
+    env.R2_PUBLIC_URL
+);
+
+export const r2Client = r2IsConfigured
+  ? new S3Client({
+      region: env.R2_REGION,
+      endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: env.R2_ACCESS_KEY_ID as string,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY as string,
+      },
+      forcePathStyle: false,
+    })
+  : null;
 
 export const r2Config = {
   bucket: env.R2_BUCKET_NAME,

@@ -2,6 +2,7 @@ import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoos
 
 export interface IPropertyAvailability {
   property: Types.ObjectId;
+  room: Types.ObjectId;
   date: Date;
   status: 'available' | 'booked' | 'blocked';
   price: number;
@@ -16,6 +17,7 @@ export type PropertyAvailabilityDocument = HydratedDocument<IPropertyAvailabilit
 const propertyAvailabilitySchema = new Schema<IPropertyAvailability>(
   {
     property: { type: Schema.Types.ObjectId, ref: 'Property', required: true },
+    room: { type: Schema.Types.ObjectId, ref: 'Room', required: true },
     date: { type: Date, required: true },
     status: {
       type: String,
@@ -29,8 +31,8 @@ const propertyAvailabilitySchema = new Schema<IPropertyAvailability>(
   { timestamps: true }
 );
 
-propertyAvailabilitySchema.index({ property: 1, date: 1 }, { unique: true });
-propertyAvailabilitySchema.index({ property: 1, status: 1, date: 1 });
+propertyAvailabilitySchema.index({ room: 1, date: 1 }, { unique: true });
+propertyAvailabilitySchema.index({ room: 1, status: 1, date: 1 });
 
 export const PropertyAvailability: Model<IPropertyAvailability> = model<IPropertyAvailability>(
   'PropertyAvailability',

@@ -7,8 +7,8 @@ const router = Router();
 router.get('/', async (_req, res) => {
   const dbStatus = await validateDatabaseConfiguration();
 
-  res.status(200).json({
-    status: 'ok',
+  res.status(dbStatus.ok ? 200 : 503).json({
+    status: dbStatus.ok ? 'ok' : 'degraded',
     service: 'hopebed-backend',
     environment: env.NODE_ENV,
     timestamp: new Date().toISOString(),
