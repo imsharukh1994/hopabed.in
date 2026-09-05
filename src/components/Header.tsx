@@ -20,7 +20,7 @@ export function Header() {
 
 function DesktopHeader() {
   const pathname = usePathname();
-  const { openAuth } = useAuthModal();
+  const { openAuth, user, logout } = useAuthModal();
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -64,13 +64,22 @@ function DesktopHeader() {
               </ul>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={openAuth}
-            className="rounded-full border border-white/80 px-4 py-1.5 text-sm font-medium text-white hover:bg-white/10"
-          >
-            Login / Signup
-          </button>
+          {user ? (
+            <>
+              <Link href="/profile" className="flex min-w-0 max-w-48 items-center gap-2 rounded-full border border-white bg-white px-2.5 py-1 text-sm font-semibold text-ink-soft hover:bg-mint">
+                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
+                  {user.name.charAt(0).toUpperCase()}
+                  {user.avatarUrl ? <img src={user.avatarUrl} alt="" className="absolute inset-0 h-full w-full rounded-full object-cover" referrerPolicy="no-referrer" onError={(event) => { event.currentTarget.style.display = "none"; }} /> : null}
+                </span>
+                <span className="min-w-0 truncate">{user.name}</span>
+              </Link>
+              <button type="button" onClick={logout} className="text-xs text-white/70 hover:text-white">Log out</button>
+            </>
+          ) : (
+            <button type="button" onClick={openAuth} className="rounded-full border border-white/80 px-4 py-1.5 text-sm font-medium text-white hover:bg-white/10">
+              Login / Signup
+            </button>
+          )}
           <button
             type="button"
             className="rounded-md p-1 text-white"

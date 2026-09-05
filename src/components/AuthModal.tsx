@@ -5,6 +5,7 @@ import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { authenticateWithGoogle, authenticateWithPassword } from "@/lib/api";
 import { useAuthModal } from "./AuthProvider";
+import { useRouter } from "next/navigation";
 
 declare global {
   interface Window {
@@ -20,7 +21,8 @@ declare global {
 }
 
 export function AuthModal() {
-  const { isOpen, closeAuth } = useAuthModal();
+  const { isOpen, closeAuth, setSession } = useAuthModal();
+  const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [googleReady, setGoogleReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,15 +40,16 @@ export function AuthModal() {
         try {
           setError(null);
           const result = await authenticateWithGoogle(credential);
-          localStorage.setItem("hopebed_access_token", result.data.token);
+          setSession(result.data.token, result.data.user);
           closeAuth();
+          router.push("/");
         } catch (authenticationError) {
           setError(authenticationError instanceof Error ? authenticationError.message : "Google sign-in failed.");
         }
       },
     });
     window.google.accounts.id.renderButton(googleButtonRef.current, { theme: "outline", size: "large", width: 360 });
-  }, [closeAuth, googleClientId, googleReady, isOpen]);
+  }, [closeAuth, googleClientId, googleReady, isOpen, router, setSession]);
 
   if (!isOpen) return null;
 
@@ -91,8 +94,9 @@ export function AuthModal() {
                 email: formData.get("email")?.toString() ?? "",
                 password: formData.get("password")?.toString() ?? "",
               });
-              localStorage.setItem("hopebed_access_token", result.data.token);
+              setSession(result.data.token, result.data.user);
               closeAuth();
+              router.push("/");
             } catch (authenticationError) {
               setError(authenticationError instanceof Error ? authenticationError.message : "Authentication failed.");
             } finally {

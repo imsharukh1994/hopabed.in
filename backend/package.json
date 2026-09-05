@@ -8,7 +8,7 @@
     "build": "tsc --project tsconfig.json",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts",
-    "test:auth": "cross-env NODE_ENV=test JWT_SECRET=01234567890123456789012345678901 MONGODB_URI=mongodb://127.0.0.1:27017/hopebed MONGODB_DB_NAME=hopebed node --import tsx --test src/middleware/auth.test.ts",
+    "test:auth": "cross-env NODE_ENV=test JWT_SECRET=01234567890123456789012345678901 GOOGLE_CLIENT_ID=test-google-client-id.apps.googleusercontent.com MONGODB_URI=mongodb://127.0.0.1:27017/hopebed MONGODB_DB_NAME=hopebed node --import tsx --test src/middleware/auth.test.ts",
     "seed:navi-mumbai": "tsx src/scripts/seedNaviMumbai.ts"
   },
   "dependencies": {

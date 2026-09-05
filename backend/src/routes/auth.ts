@@ -22,6 +22,7 @@ function publicUser(user: {
   email: string;
   role: string;
   phone?: string;
+  avatarUrl?: string;
 }) {
   return {
     id: String(user._id ?? user.id),
@@ -29,6 +30,7 @@ function publicUser(user: {
     email: user.email,
     role: user.role,
     phone: user.phone,
+    avatarUrl: user.avatarUrl,
   };
 }
 
@@ -95,7 +97,7 @@ router.post('/google', async (req, res, next) => {
       return;
     }
 
-    let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email: payload.email.toLowerCase() }] });
+    let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email: payload.email.toLowerCase() }] }).select('+googleId');
     if (user && user.googleId && user.googleId !== payload.sub) {
       res.status(409).json({
         success: false,
@@ -113,11 +115,13 @@ router.post('/google', async (req, res, next) => {
         isEmailVerified: true,
         avatarUrl: payload.picture,
       });
-    } else if (!user.googleId) {
-      user.googleId = payload.sub;
-      user.authProvider = 'google';
+    } else {
+      if (!user.googleId) {
+        user.googleId = payload.sub;
+        user.authProvider = 'google';
+      }
       user.isEmailVerified = true;
-      if (!user.avatarUrl && payload.picture) user.avatarUrl = payload.picture;
+      if (payload.picture) user.avatarUrl = payload.picture;
       await user.save();
     }
 

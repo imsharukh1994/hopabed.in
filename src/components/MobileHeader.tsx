@@ -24,7 +24,7 @@ export function MobileHeader() {
 }
 
 export function MenuDrawer({ onClose }: { onClose: () => void }) {
-  const { openAuth } = useAuthModal();
+  const { openAuth, user, logout } = useAuthModal();
 
   return (
     <div className="fixed inset-0 z-[70]">
@@ -52,16 +52,18 @@ export function MenuDrawer({ onClose }: { onClose: () => void }) {
             Profile
           </Link>
         </nav>
-        <button
-          type="button"
-          className="mt-6 rounded-xl bg-brand py-2.5 text-sm font-semibold text-white"
-          onClick={() => {
-            onClose();
-            openAuth();
-          }}
-        >
-          Login / Signup
-        </button>
+        {user ? (
+          <>
+            <p className="mt-6 rounded-xl bg-mint px-3 py-2.5 text-sm font-semibold text-ink-soft">Signed in as {user.name}</p>
+            <button type="button" className="mt-2 rounded-xl border border-border py-2.5 text-sm" onClick={() => { onClose(); logout(); }}>
+              Log out
+            </button>
+          </>
+        ) : (
+          <button type="button" className="mt-6 rounded-xl bg-brand py-2.5 text-sm font-semibold text-white" onClick={() => { onClose(); openAuth(); }}>
+            Login / Signup
+          </button>
+        )}
       </aside>
     </div>
   );
