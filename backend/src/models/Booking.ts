@@ -9,11 +9,14 @@ export interface IBooking {
   checkOut: Date;
   nights: number;
   guests: number;
+  roomCount: number;
+  pricePerNight: number;
   status: 'pending' | 'confirmed' | 'checked_in' | 'completed' | 'cancelled' | 'rejected';
   subtotal: number;
   serviceFee: number;
   taxes: number;
   totalAmount: number;
+  paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED' | 'FAILED';
   currency: string;
   notes?: string;
   createdAt: Date;
@@ -32,6 +35,8 @@ const bookingSchema = new Schema<IBooking>(
     checkOut: { type: Date, required: true },
     nights: { type: Number, required: true, min: 1 },
     guests: { type: Number, required: true, min: 1 },
+    roomCount: { type: Number, required: true, min: 1, default: 1 },
+    pricePerNight: { type: Number, required: true, min: 0 },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'checked_in', 'completed', 'cancelled', 'rejected'],
@@ -41,6 +46,11 @@ const bookingSchema = new Schema<IBooking>(
     serviceFee: { type: Number, required: true, min: 0 },
     taxes: { type: Number, required: true, min: 0 },
     totalAmount: { type: Number, required: true, min: 0 },
+    paymentStatus: {
+      type: String,
+      enum: ['UNPAID', 'PAID', 'REFUNDED', 'FAILED'],
+      default: 'UNPAID',
+    },
     currency: { type: String, required: true, default: 'INR', uppercase: true },
     notes: { type: String, trim: true, maxlength: 500 },
   },

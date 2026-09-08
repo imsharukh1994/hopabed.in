@@ -7,11 +7,11 @@ import { PropertyCard } from "./PropertyCard";
 
 export function PropertySection() {
   return (
-    <section className="container-page py-10 sm:py-12">
+    <section className="container-page border-t border-border/70 py-12 sm:py-16">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">Recommended</p>
-          <h2 className="text-2xl font-bold tracking-[-0.03em] text-ink-soft sm:text-3xl">Top places to stay</h2>
+          <h2 className="text-2xl font-bold text-ink-soft sm:text-3xl">Preview places to stay</h2>
         </div>
         <Link href="/stays" className="text-sm font-semibold text-brand transition hover:text-brand-dark">
           View all →
@@ -31,7 +31,10 @@ export function PropertySection() {
           <ChevronRight className="h-5 w-5 text-muted" />
         </Link>
       </div>
-      <p className="mt-4 text-xs text-muted">Demo listings for preview only — not live Hopebed partners.</p>
+      <div className="mt-5 flex items-center gap-2 rounded-xl border border-brand/20 bg-mint px-3.5 py-3 text-xs text-ink-soft">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-brand" aria-hidden />
+        Preview listings only. Verified partner inventory will appear here when live booking launches.
+      </div>
     </section>
   );
 }

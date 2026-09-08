@@ -6,6 +6,8 @@ import { env } from './config/env.js';
 import { connectDatabase } from './config/database.js';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';
+import propertiesRouter from './routes/properties.js';
+import bookingsRouter from './routes/bookings.js';
 
 export const app = express();
 
@@ -38,6 +40,8 @@ app.get('/', (_req: Request, res: Response) => {
 
 app.use('/health', healthRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/properties', propertiesRouter);
+app.use('/api/bookings', bookingsRouter);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled server error:', err);

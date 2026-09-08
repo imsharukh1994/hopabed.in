@@ -40,7 +40,7 @@ const propertySchema = new Schema<IProperty>(
   {
     host: { type: Schema.Types.ObjectId, ref: 'Host', required: true },
     title: { type: String, required: true, trim: true, maxlength: 160 },
-    slug: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    slug: { type: String, required: true, trim: true, lowercase: true },
     propertyType: {
       type: String,
       enum: ['apartment', 'villa', 'studio', 'house', 'farmstay', 'guesthouse'],

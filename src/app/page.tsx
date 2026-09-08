@@ -6,12 +6,12 @@ import { TrustSection } from "@/components/TrustSection";
 
 export default function HomePage() {
   return (
-    <>
+    <main className="bg-canvas">
       <Hero />
       <StayTypeSection />
       <PropertySection />
       <TrustSection />
       <HostBanner />
-    </>
+    </main>
   );
 }

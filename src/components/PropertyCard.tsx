@@ -36,9 +36,9 @@ export function PropertyCard({ property }: { property: Property }) {
           <Heart className={`h-4 w-4 ${saved ? "fill-brand text-brand" : ""}`} />
         </button>
       </div>
-      <div className="p-3.5">
+      <div className="flex min-h-[138px] flex-col p-3.5">
         <div className="flex items-start justify-between gap-2">
-          <Link href={`/stay/${property.id}`} className="font-semibold leading-5 text-ink-soft">
+          <Link href={`/stay/${property.id}`} className="min-h-10 font-semibold leading-5 text-ink-soft">
             {property.name}
           </Link>
           <p className="flex shrink-0 items-center gap-1 text-sm text-ink-soft">

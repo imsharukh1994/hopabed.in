@@ -26,9 +26,9 @@ function DesktopHeader() {
 
   return (
     <header className="sticky top-0 z-50 hidden bg-ink lg:block">
-      <div className="container-page flex h-[76px] items-center justify-between gap-6">
+      <div className="container-page flex h-[76px] items-center justify-between gap-3 xl:gap-6">
         <Logo />
-        <nav className="flex items-center gap-6 text-[14px] text-white/90" aria-label="Primary">
+        <nav className="flex items-center gap-3 text-[13px] text-white/90 xl:gap-5 xl:text-[14px]" aria-label="Primary">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}

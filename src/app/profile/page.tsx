@@ -1,15 +1,18 @@
 "use client";
 
 import { useAuthModal } from "@/components/AuthProvider";
+import { getBookings } from "@/lib/api";
 import { CalendarDays, ChevronRight, ShieldCheck, UserRound } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function ProfilePage() {
   const { openAuth, user, logout } = useAuthModal();
+  const [bookingCount, setBookingCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) openAuth();
+    if (user) getBookings().then((bookings) => setBookingCount(bookings.length)).catch(() => setBookingCount(0));
   }, [openAuth, user]);
 
   if (!user) return <main className="container-page py-16"><p className="text-muted">Please log in to view your profile.</p></main>;
@@ -55,7 +58,7 @@ export default function ProfilePage() {
               <div className="border border-border bg-white p-5 shadow-sm">
                 <CalendarDays className="h-5 w-5 text-brand" />
                 <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-muted">Your stays</p>
-                <p className="mt-1 text-lg font-semibold text-ink-soft">No bookings yet</p>
+                <p className="mt-1 text-lg font-semibold text-ink-soft">{bookingCount === null ? "Loading..." : bookingCount === 0 ? "No bookings yet" : `${bookingCount} booking${bookingCount === 1 ? "" : "s"}`}</p>
               </div>
             </div>
           </div>
