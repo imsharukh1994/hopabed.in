@@ -114,3 +114,19 @@ export async function getBookings() {
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't load your bookings.");
 	return body.data.bookings;
 }
+
+export async function registerHost(input: { businessName?: string; bio?: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in before registering as a host.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/register`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: { host: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't register you as a host.");
+	
+	// Refresh user to get updated 'host' role
+	const user = await getCurrentUser(token);
+	return { host: body.data.host, user };
+}

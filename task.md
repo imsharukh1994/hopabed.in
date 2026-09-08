@@ -1,29 +1,29 @@
 # Hopebed MVP Task Checklist
 
 ## Day 1: Audit, Infrastructure, & Database (Phase 1)
-- `[/]` **System Audit**
-  - `[/]` Inspect frontend code and architecture
-  - `[/]` Inspect backend code and architecture
-  - `[ ]` Inspect database configuration
-  - `[ ]` Inspect deployment configuration (Cloudflare/Azure)
-  - `[ ]` Inspect existing APIs, auth, booking, and payment logic
-  - `[ ]` Produce the DONE/PARTIAL/BROKEN/MISSING matrix
-- `[ ]` **Architecture & Infrastructure**
-  - `[ ]` Finalize and document the recommended architecture
-  - `[ ]` Recommend cheapest practical infrastructure architecture
-- `[ ]` **Database Setup**
-  - `[ ]` Create core MongoDB schemas (Users, Hosts, Properties, Rooms, Bookings, Payments, Reviews)
-  - `[ ]` Set up indexes and constraints
-- `[ ]` **Security & Config**
-  - `[ ]` Configure environment variables
-  - `[ ]` Setup security baseline (CORS, rate limiting, basic auth middlewares)
+- `[x]` **System Audit**
+  - `[x]` Inspect frontend code and architecture
+  - `[x]` Inspect backend code and architecture
+  - `[x]` Inspect database configuration
+  - `[x]` Inspect deployment configuration (Cloudflare/Azure)
+  - `[x]` Inspect existing APIs, auth, booking, and payment logic
+  - `[x]` Produce the DONE/PARTIAL/BROKEN/MISSING matrix
+- `[x]` **Architecture & Infrastructure**
+  - `[x]` Finalize and document the recommended architecture
+  - `[x]` Recommend cheapest practical infrastructure architecture
+- `[x]` **Database Setup**
+  - `[x]` Create core MongoDB schemas (Users, Hosts, Properties, Rooms, Bookings, Payments, Reviews)
+  - `[x]` Set up indexes and constraints
+- `[x]` **Security & Config**
+  - `[x]` Configure environment variables
+  - `[x]` Setup security baseline (CORS, rate limiting, basic auth middlewares)
 
 ## Day 2: Core Backend - Users & Hosts (Phase 2 - Part A)
-- `[ ]` Implement secure login/signup APIs
-- `[ ]` Implement session/token management
-- `[ ]` Setup role management (User/Host/Admin)
-- `[ ]` Build Host registration APIs
-- `[ ]` Frontend integration for auth/host forms
+- `[x]` Implement secure login/signup APIs
+- `[x]` Implement session/token management
+- `[x]` Setup role management (User/Host/Admin)
+- `[x]` Build Host registration APIs
+- `[x]` Frontend integration for auth/host forms
 
 ## Day 3: Core Backend - Properties & Inventory (Phase 2 - Part B)
 - `[ ]` Create Property management APIs
