@@ -5,7 +5,7 @@ export interface IPayment {
   user: Types.ObjectId;
   amount: number;
   currency: string;
-  paymentGateway: 'razorpay' | 'manual';
+  paymentGateway: 'payu' | 'razorpay' | 'manual';
   paymentId?: string;
   orderId?: string;
   signature?: string;
@@ -25,8 +25,8 @@ const paymentSchema = new Schema<IPayment>(
     currency: { type: String, required: true, default: 'INR', uppercase: true },
     paymentGateway: {
       type: String,
-      enum: ['razorpay', 'manual'],
-      default: 'razorpay',
+      enum: ['payu', 'razorpay', 'manual'],
+      default: 'payu',
     },
     paymentId: { type: String, trim: true },
     orderId: { type: String, trim: true },

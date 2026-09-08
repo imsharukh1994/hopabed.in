@@ -130,3 +130,91 @@ export async function registerHost(input: { businessName?: string; bio?: string 
 	const user = await getCurrentUser(token);
 	return { host: body.data.host, user };
 }
+
+export async function getHostProperties() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/properties`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+	const body = (await response.json()) as { data?: { properties: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load properties.");
+	return body.data.properties;
+}
+
+export async function createProperty(propertyData: Record<string, unknown>) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/properties`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(propertyData),
+	});
+	const body = (await response.json()) as { data?: { property: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to create property.");
+	return body.data.property;
+}
+
+export async function initPayUPayment(bookingId: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/payments/payu-init`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ bookingId }),
+	});
+	const body = (await response.json()) as { data?: Record<string, string>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to initialize payment.");
+	return body.data;
+}
+
+export async function getAdminStats() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/stats`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+	const body = (await response.json()) as { data?: { users: number; hosts: number; properties: number; bookings: number }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load admin stats.");
+	return body.data;
+}
+
+export async function getPendingProperties() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/properties?status=PENDING_REVIEW`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+	const body = (await response.json()) as { data?: { properties: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load pending properties.");
+	return body.data.properties;
+}
+
+export async function verifyProperty(id: string, status: "VERIFIED" | "REJECTED", reason?: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/properties/${id}/verify`, {
+		method: "PUT",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ status, reason }),
+	});
+	const body = (await response.json()) as { data?: { property: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to verify property.");
+	return body.data.property;
+}
+
+export async function getHostBookings() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/bookings`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+	const body = (await response.json()) as { data?: { bookings: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load host bookings.");
+	return body.data.bookings;
+}
+
+export async function verifyBookingPass(bookingId: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/verify-pass`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ bookingId }),
+	});
+	const body = (await response.json()) as { data?: { booking: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to verify stay pass.");
+	return body.data.booking;
+}

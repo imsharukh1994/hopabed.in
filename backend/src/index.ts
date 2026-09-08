@@ -9,6 +9,8 @@ import authRouter from './routes/auth.js';
 import propertiesRouter from './routes/properties.js';
 import bookingsRouter from './routes/bookings.js';
 import hostsRouter from './routes/hosts.js';
+import paymentsRouter from './routes/payments.js';
+import adminRouter from './routes/admin.js';
 
 export const app = express();
 
@@ -44,6 +46,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/properties', propertiesRouter);
 app.use('/api/bookings', bookingsRouter);
 app.use('/api/hosts', hostsRouter);
+app.use('/api/payments', paymentsRouter);
+app.use('/api/admin', adminRouter);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled server error:', err);
