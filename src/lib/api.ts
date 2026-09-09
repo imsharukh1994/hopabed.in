@@ -166,6 +166,32 @@ export async function initPayUPayment(bookingId: string) {
 	return body.data;
 }
 
+export async function verifyPayUPayment(bookingId: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/payments/payu-verify`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ bookingId }),
+	});
+	const body = (await response.json()) as { data?: { status: string }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to verify payment.");
+	return body.data;
+}
+
+export async function refundPayUPayment(bookingId: string, amount?: number) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/payments/payu-refund`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ bookingId, amount }),
+	});
+	const body = (await response.json()) as { data?: { message: string, refundId: string }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to initiate refund.");
+	return body.data;
+}
+
 export async function getAdminStats() {
 	const token = localStorage.getItem("hopebed_access_token");
 	if (!token) throw new Error("Please log in.");

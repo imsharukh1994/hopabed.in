@@ -42,6 +42,7 @@ export default function PropertyManagementPage({ params }: { params: Promise<{ i
 
   useEffect(() => {
     fetchProperty();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolvedParams.id]);
 
   const toggleAmenity = (amenity: string) => {
