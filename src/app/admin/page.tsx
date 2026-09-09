@@ -7,8 +7,8 @@ import { CheckCircle, XCircle } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const { user } = useAuthModal();
-  const [stats, setStats] = useState<any>(null);
-  const [properties, setProperties] = useState<any[]>([]);
+  const [stats, setStats] = useState<Record<string, any> | null>(null);
+  const [properties, setProperties] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
       await verifyProperty(id, status);
       setProperties(properties.filter(p => p._id !== id));
       alert(`Property ${status.toLowerCase()} successfully.`);
-    } catch (err) {
+    } catch {
       alert("Error updating property verification status.");
     }
   };

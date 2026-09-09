@@ -1,5 +1,3 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
-
 export default function Page() {
   return (
     <div className="container-page py-20 max-w-3xl">

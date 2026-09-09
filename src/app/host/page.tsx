@@ -10,8 +10,8 @@ export default function HostPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [properties, setProperties] = useState<any[]>([]);
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [properties, setProperties] = useState<Record<string, any>[]>([]);
+  const [bookings, setBookings] = useState<Record<string, any>[]>([]);
   const [showAddProperty, setShowAddProperty] = useState(false);
   const [activeTab, setActiveTab] = useState<"properties" | "bookings">("properties");
 

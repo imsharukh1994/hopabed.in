@@ -11,7 +11,7 @@ function VerifyContent() {
   const bookingId = searchParams.get("b");
   const { user } = useAuthModal();
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

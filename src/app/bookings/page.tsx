@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useAuthModal } from "@/components/AuthProvider";
 import { getBookings, initPayUPayment } from "@/lib/api";
-import { CalendarDays, MapPin, QrCode } from "lucide-react";
+import { CalendarDays, MapPin } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 
 export default function BookingsPage() {
   const { user, openAuth } = useAuthModal();
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export default function BookingsPage() {
     );
   }
 
-  const handlePayment = async (booking: any) => {
+  const handlePayment = async (booking: Record<string, any>) => {
     setProcessingPayment(booking._id);
     try {
       const payload = await initPayUPayment(booking._id);
