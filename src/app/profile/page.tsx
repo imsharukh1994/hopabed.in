@@ -15,7 +15,7 @@ export default function ProfilePage() {
       <div className="rounded-2xl bg-white p-8 shadow-sm">
         <div className="flex items-center gap-6">
           <Image
-            src={user.avatar || "/default-avatar.png"}
+            src={user.avatarUrl || "/default-avatar.png"}
             alt={`${user.name}'s avatar`}
             width={80}
             height={80}
@@ -29,10 +29,6 @@ export default function ProfilePage() {
         <div className="mt-6 space-y-2">
           <p>
             <span className="font-medium">Role:</span> {user.role}
-          </p>
-          <p>
-            <span className="font-medium">Member since:</span>{" "}
-            {new Date(user.createdAt).toLocaleDateString()}
           </p>
         </div>
       </div>

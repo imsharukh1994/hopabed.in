@@ -22,7 +22,7 @@ export default function BookingsPage() {
   useEffect(() => {
     if (!user) return;
     getBookings()
-      .then((data) => setBookings(data as Booking[]))
+      .then((data) => setBookings(data as unknown as Booking[]))
       .finally(() => setLoading(false));
   }, [user]);
 

@@ -26,9 +26,9 @@ export default function HostDashboardPage() {
 
   useEffect(() => {
     if (!user || user.role !== "host") return;
-    Promise.all([getHostProperties(user.id), getHostStats(user.id)])
+    Promise.all([getHostProperties(), getHostStats(user.id)])
       .then(([props, stats]) => {
-        setProperties(props as HostProperty[]);
+        setProperties(props as unknown as HostProperty[]);
         setStats(stats as HostStats);
       })
       .finally(() => setLoading(false));

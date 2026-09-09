@@ -14,7 +14,7 @@ status: "PENDING" | "CONFIRMED" | "CANCELLED";
 totalPrice: number;
 }
 
-function isBooking(value: Record<string, unknown>): value is Booking {
+function isBooking(value: any): value is Booking {
 return (
 typeof value.id === "string" &&
 typeof value.propertyId === "string" &&
@@ -40,7 +40,6 @@ setLoading(false);
 return;
 }
 
-```
 getBookings()
   .then((data) => {
     const validBookings = data.filter(isBooking);
@@ -49,7 +48,6 @@ getBookings()
   .finally(() => {
     setLoading(false);
   });
-```
 
 }, [user]);
 
@@ -62,7 +60,6 @@ Loading bookings... </p>
 return ( <div className="mx-auto max-w-4xl px-6 py-10"> <h1 className="mb-6 text-2xl font-bold text-ink-soft">
 My Bookings </h1>
 
-```
   {bookings.length === 0 ? (
     <p className="text-muted">
       You have no bookings yet.

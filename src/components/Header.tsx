@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useAuthModal } from "@/components/AuthProvider";
 
 export default function Header() {
-  const { user, openAuthModal, logout } = useAuthModal();
+  const { user, openAuth, logout } = useAuthModal();
 
   return (
     <header className="border-b border-border bg-white">
@@ -38,7 +38,7 @@ export default function Header() {
                 className="flex items-center gap-2 text-ink-soft hover:underline"
               >
                 <Image
-                  src={user.avatar || "/default-avatar.png"}
+                  src={user.avatarUrl || "/default-avatar.png"}
                   alt="Profile"
                   width={32}
                   height={32}
@@ -55,7 +55,7 @@ export default function Header() {
             </>
           ) : (
             <button
-              onClick={openAuthModal}
+              onClick={openAuth}
               className="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-dark"
             >
               Login / Sign Up
