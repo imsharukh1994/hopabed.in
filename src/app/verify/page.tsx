@@ -1,90 +1,60 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { useAuthModal } from "@/components/AuthProvider";
-import { verifyBookingPass } from "@/lib/api";
-import { CheckCircle, AlertTriangle, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { verifyAccount } from "@/lib/api";
 
-function VerifyContent() {
-  const searchParams = useSearchParams();
-  const bookingId = searchParams.get("b");
-  const { user } = useAuthModal();
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Record<string, any> | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user || user.role !== "host" || !bookingId) return;
-
-    setLoading(true);
-    verifyBookingPass(bookingId)
-      .then(res => setResult(res))
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [user, bookingId]);
-
-  if (!bookingId) {
-    return (
-      <div className="container-page py-20 text-center">
-        <AlertTriangle className="mx-auto mb-4 h-16 w-16 text-orange-500" />
-        <h1 className="mb-2 text-2xl font-bold">Invalid QR Code</h1>
-        <p className="text-muted">This QR code does not contain a valid Stay Pass.</p>
-      </div>
-    );
-  }
-
-  if (!user || user.role !== "host") {
-    return (
-      <div className="container-page py-20 text-center">
-        <h1 className="mb-4 text-2xl font-bold">Host Verification Required</h1>
-        <p className="text-muted">You must be logged in as a host to verify a Stay Pass.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container-page flex min-h-[60vh] items-center justify-center py-12">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-white text-center shadow-lg">
-        <div className="bg-canvas py-8">
-          <ShieldCheck className="mx-auto h-16 w-16 text-brand" />
-        </div>
-        <div className="p-8">
-          <h1 className="mb-6 text-2xl font-bold text-ink">Stay Pass Verification</h1>
-          
-          {loading ? (
-            <div className="flex animate-pulse flex-col gap-3">
-              <div className="h-6 w-3/4 self-center rounded-lg bg-gray-200"></div>
-              <div className="h-4 w-1/2 self-center rounded-lg bg-gray-200"></div>
-            </div>
-          ) : error ? (
-            <div className="rounded-2xl bg-red-50 p-6 text-red-600">
-              <AlertTriangle className="mx-auto mb-2 h-8 w-8" />
-              <p className="font-semibold">{error}</p>
-            </div>
-          ) : result ? (
-            <div className="rounded-2xl bg-green-50 p-6 text-green-700">
-              <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500" />
-              <h2 className="mb-2 text-xl font-bold">Guest Checked In!</h2>
-              <p className="mb-4 text-sm font-medium text-green-800">
-                {result.guest?.name} has been successfully verified.
-              </p>
-              <div className="rounded-xl border border-green-200 bg-white p-4 text-left text-sm text-ink-soft">
-                <p><strong>Property:</strong> {result.property?.title || "Property"}</p>
-                <p><strong>Dates:</strong> {new Date(result.checkIn).toLocaleDateString()} to {new Date(result.checkOut).toLocaleDateString()}</p>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
+interface VerificationResult {
+  success: boolean;
+  message: string;
 }
 
 export default function VerifyPage() {
+  const router = useRouter();
+  const [result, setResult] = useState<VerificationResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (!token) {
+      setResult({ success: false, message: "Missing verification token." });
+      setLoading(false);
+      return;
+    }
+
+    verifyAccount(token)
+      .then((data) => {
+        setResult(data as VerificationResult);
+      })
+      .catch(() => {
+        setResult({ success: false, message: "Verification failed." });
+      })
+      .finally(() => setLoading(false));
+  }, [router]);
+
+  if (loading) {
+    return <p className="px-6 py-10 text-center">Verifying...</p>;
+  }
+
   return (
-    <Suspense fallback={<div className="container-page py-20 text-center">Loading...</div>}>
-      <VerifyContent />
-    </Suspense>
+    <div className="mx-auto max-w-md px-6 py-16 text-center">
+      {result?.success ? (
+        <>
+          <h1 className="text-2xl font-bold text-green-600">Success!</h1>
+          <p className="mt-4 text-muted">{result.message}</p>
+          <button
+            onClick={() => router.push("/login")}
+            className="mt-6 rounded-lg bg-primary px-4 py-2 text-white"
+          >
+            Go to Login
+          </button>
+        </>
+      ) : (
+        <>
+          <h1 className="text-2xl font-bold text-red-600">Verification Failed</h1>
+          <p className="mt-4 text-muted">{result?.message}</p>
+        </>
+      )}
+    </div>
   );
 }
