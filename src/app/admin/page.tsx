@@ -56,13 +56,11 @@ export default function AdminDashboardPage() {
     return (<div className="container-page py-20 text-center"> <h1 className="mb-4 text-3xl font-bold text-ink">
       Admin Dashboard </h1>
 
-      ```
       <p className="text-muted">
         You do not have permission to view this page.
       </p>
     </div>
     );
-    ```
 
 }
 
@@ -73,7 +71,6 @@ status: "VERIFIED" | "REJECTED"
 try {
 await verifyProperty(id, status);
 
-```
     setProperties((currentProperties) =>
       currentProperties.filter(
         (property) => property._id !== id
@@ -88,14 +85,12 @@ await verifyProperty(id, status);
       "Error updating property verification status."
     );
   }
-  ```
 
 };
 
 return ( <div className="container-page py-12"> <h1 className="mb-8 text-3xl font-bold text-ink">
 Admin Dashboard </h1>
 
-```
   {
     loading ? (
       <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -235,7 +230,6 @@ Admin Dashboard </h1>
     )
   }
 </div >
-    ```
 
 );
 }
@@ -250,12 +244,10 @@ value: number;
 return ( <div className="rounded-2xl border border-border bg-white p-6 shadow-sm"> <p className="text-sm font-medium text-muted">
 {title} </p>
 
-```
     < p className = "mt-2 text-3xl font-bold text-ink-soft" >
       { value }
   </p >
 </div >
-    ```
 
 );
 }
