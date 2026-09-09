@@ -8,10 +8,17 @@ export default function Header() {
   const { user, openAuth, logout } = useAuthModal();
 
   return (
-    <header className="border-b border-ink bg-ink">
+    <header className="border-b border-black bg-black">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/brand/hopabed-wordmark.jpg" alt="HopeBed Logo" width={140} height={40} className="object-contain" />
+          <Image
+            src="/logo.png"
+            alt="HopeBed Logo"
+            width={140}
+            height={40}
+            className="object-contain"
+            priority
+          />
         </Link>
 
         <nav className="flex items-center gap-4 text-white">

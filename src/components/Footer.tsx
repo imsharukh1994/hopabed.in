@@ -29,7 +29,7 @@ const HOSTS = [
 
 export function Footer() {
   return (
-    <footer className="bg-ink text-white">
+    <footer className="bg-black text-white">
       <div className="container-page grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
         <div>
           <Logo />
