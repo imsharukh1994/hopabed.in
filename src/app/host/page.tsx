@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useAuthModal } from "@/components/AuthProvider";
-import { getHostProperties, getHostStats } from "@/lib/api";
+import { getHostProperties, getHostStats, registerHost } from "@/lib/api";
 
 interface HostProperty {
   id: string;
@@ -25,9 +25,32 @@ export default function HostDashboardPage() {
   const [properties, setProperties] = useState<HostProperty[]>([]);
   const [stats, setStats] = useState<HostStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [registering, setRegistering] = useState(false);
+  const [registerError, setRegisterError] = useState("");
+
+  const handleRegister = async () => {
+    setRegistering(true);
+    setRegisterError("");
+    try {
+      await registerHost({});
+      window.location.reload(); // Quick way to refresh session/role
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setRegisterError(err.message || "Failed to register as host.");
+      }
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   useEffect(() => {
-    if (!user || user.role !== "host") return;
+    if (!user) return; // Wait for user to load
+
+    if (user.role !== "host") {
+      setLoading(false);
+      return;
+    }
+
     Promise.all([getHostProperties(), getHostStats()])
       .then(([props, stats]) => {
         setProperties(props as unknown as HostProperty[]);
@@ -37,6 +60,29 @@ export default function HostDashboardPage() {
   }, [user]);
 
   if (loading) return <p className="px-6 py-10 text-center">Loading dashboard...</p>;
+
+  if (user?.role !== "host") {
+    return (
+      <div className="mx-auto max-w-4xl px-6 py-20 text-center">
+        <h1 className="mb-4 text-3xl font-bold text-ink-soft">Become a Host</h1>
+        <p className="mb-8 text-lg text-muted">Join Hopebed and start earning by listing your properties today.</p>
+        
+        {registerError && (
+          <div className="mb-6 rounded-lg bg-red-100 p-3 text-sm text-red-700">
+            {registerError}
+          </div>
+        )}
+        
+        <button
+          onClick={handleRegister}
+          disabled={registering}
+          className="inline-flex items-center gap-2 rounded-xl bg-brand px-8 py-3 font-semibold text-white transition hover:bg-brand-dark disabled:opacity-70"
+        >
+          {registering ? "Registering..." : "Register as Host"}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
