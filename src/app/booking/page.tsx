@@ -42,7 +42,7 @@ return;
 
 getBookings()
   .then((data) => {
-    const validBookings = data.filter(isBooking);
+    const validBookings = data.filter(isBooking) as unknown as Booking[];
     setBookings(validBookings);
   })
   .finally(() => {
