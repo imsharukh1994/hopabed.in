@@ -175,6 +175,7 @@ Admin Dashboard
               </td>
               <td className="px-6 py-4 text-right">
                 <button
+                  type="button"
                   onClick={() =>
                     handleVerify(
                       prop._id,
@@ -187,6 +188,7 @@ Admin Dashboard
                   Approve
                 </button>
                 <button
+                  type="button"
                   onClick={() =>
                     handleVerify(
                       prop._id,
