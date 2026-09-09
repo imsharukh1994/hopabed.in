@@ -44,7 +44,7 @@ export default function VerifyPage() {
           <p className="mt-4 text-muted">{result.message}</p>
           <button
             onClick={() => router.push("/login")}
-            className="mt-6 rounded-lg bg-primary px-4 py-2 text-white"
+            className="mt-6 rounded-lg bg-brand px-4 py-2 text-white"
           >
             Go to Login
           </button>

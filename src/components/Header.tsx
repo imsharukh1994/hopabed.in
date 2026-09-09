@@ -56,7 +56,7 @@ export default function Header() {
           ) : (
             <button
               onClick={openAuth}
-              className="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-dark"
+              className="rounded-lg bg-brand px-4 py-2 text-white hover:bg-brand-dark"
             >
               Login / Sign Up
             </button>
