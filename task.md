@@ -26,10 +26,10 @@
 - `[x]` Frontend integration for auth/host forms
 
 ## Day 3: Core Backend - Properties & Inventory (Phase 2 - Part B)
-- `[ ]` Create Property management APIs
-- `[ ]` Implement Inventory/Room models
-- `[ ]` Implement Property verification states
-- `[ ]` Frontend integration for Host Dashboard
+- `[x]` Create Property management APIs
+- `[x]` Implement Inventory/Room models
+- `[x]` Implement Property verification states
+- `[x]` Frontend integration for Host Dashboard
 
 ## Day 4: The Booking Engine (Phase 3)
 - `[ ]` Implement Search API

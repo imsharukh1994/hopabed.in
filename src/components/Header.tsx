@@ -3,15 +3,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useAuthModal } from "@/components/AuthProvider";
-import { HelpCircle, Briefcase, CalendarCheck, Settings, Building2, Home, Tent, Building } from "lucide-react";
+import { HelpCircle, Briefcase, CalendarCheck, Settings, Building2, Home, Tent, Building, Menu } from "lucide-react";
 import type { ReactNode } from "react";
 
 export default function Header() {
   const { user, openAuth, logout } = useAuthModal();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black shadow-sm">
-      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-border bg-white shadow-sm transition-all duration-300">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         
         {/* Left: Logo */}
         <div className="flex shrink-0 items-center">
@@ -27,40 +27,40 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Center: Navigation Icons (Absolute perfectly centered) */}
-        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:flex">
-          <div className="flex items-center gap-2">
-            <NavItem icon={<Building2 className="h-5 w-5" />} label="Hotels" href="/search?type=hotel" active />
-            <NavItem icon={<Home className="h-5 w-5" />} label="Villas" href="/search?type=villa" />
-            <NavItem icon={<Tent className="h-5 w-5" />} label="Homestays" href="/search?type=homestay" />
-            <NavItem icon={<Building className="h-5 w-5" />} label="Apartments" href="/search?type=apartment" />
+        {/* Center: Navigation Icons */}
+        <div className="hidden flex-1 justify-center px-4 lg:flex">
+          <div className="flex items-center gap-1 xl:gap-2">
+            <NavItem icon={<Building2 className="h-4 w-4" />} label="Hotels" href="/search?type=hotel" />
+            <NavItem icon={<Home className="h-4 w-4" />} label="Villas" href="/search?type=villa" />
+            <NavItem icon={<Tent className="h-4 w-4" />} label="Homestays" href="/search?type=homestay" />
+            <NavItem icon={<Building className="h-4 w-4" />} label="Apartments" href="/search?type=apartment" />
           </div>
         </div>
 
         {/* Right: Utilities */}
         <div className="flex shrink-0 items-center justify-end">
-          <nav className="flex items-center gap-4 text-sm font-medium text-white/90 xl:gap-6">
-            <Link href="/host" className="hidden items-center gap-2 transition-colors hover:text-white md:flex">
-              <Briefcase className="h-4 w-4 text-white/70" />
+          <nav className="flex items-center gap-4 text-sm font-medium text-ink-soft xl:gap-6">
+            <Link href="/host" className="hidden items-center gap-2 transition-colors hover:text-brand md:flex">
+              <Briefcase className="h-4 w-4 text-muted" />
               <span className="hidden xl:inline">List Your Property</span>
               <span className="hidden md:inline xl:hidden">Host</span>
             </Link>
             
-            <Link href="/support" className="hidden items-center gap-2 transition-colors hover:text-white md:flex">
-              <HelpCircle className="h-4 w-4 text-white/70" />
+            <Link href="/support" className="hidden items-center gap-2 transition-colors hover:text-brand md:flex">
+              <HelpCircle className="h-4 w-4 text-muted" />
               <span>Support</span>
             </Link>
 
             {user && (
-              <Link href="/bookings" className="hidden items-center gap-2 transition-colors hover:text-white lg:flex">
-                <CalendarCheck className="h-4 w-4 text-white/70" />
+              <Link href="/bookings" className="hidden items-center gap-2 transition-colors hover:text-brand lg:flex">
+                <CalendarCheck className="h-4 w-4 text-muted" />
                 <span className="hidden xl:inline">My Bookings</span>
               </Link>
             )}
 
             {user?.role === "admin" && (
-              <Link href="/admin" className="hidden items-center gap-2 transition-colors hover:text-white lg:flex">
-                <Settings className="h-4 w-4 text-white/70" />
+              <Link href="/admin" className="hidden items-center gap-2 transition-colors hover:text-brand lg:flex">
+                <Settings className="h-4 w-4 text-muted" />
                 <span>Admin</span>
               </Link>
             )}
@@ -69,20 +69,20 @@ export default function Header() {
               <div className="flex items-center gap-4">
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1.5 transition-all hover:border-brand/50 hover:bg-white/10"
+                  className="flex items-center gap-2 rounded-full border border-border bg-canvas px-3 py-1.5 transition-all hover:border-brand/50 hover:bg-white"
                 >
                   <Image
                     src={user.avatarUrl || "/default-avatar.png"}
                     alt="Profile"
                     width={24}
                     height={24}
-                    className="rounded-full border border-white/20"
+                    className="rounded-full border border-border"
                   />
-                  <span className="font-semibold text-white">{user.name}</span>
+                  <span className="font-semibold text-ink-soft">{user.name}</span>
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-xs font-semibold uppercase tracking-wider text-white/60 transition-colors hover:text-red-400"
+                  className="text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:text-red-500"
                 >
                   Logout
                 </button>
@@ -95,17 +95,12 @@ export default function Header() {
                 Login / Sign Up
               </button>
             )}
+
+            {/* Mobile Menu Toggle (Only visible < lg) */}
+            <button className="flex items-center justify-center p-2 text-ink-soft lg:hidden">
+              <Menu className="h-6 w-6" />
+            </button>
           </nav>
-        </div>
-      </div>
-      
-      {/* Mobile Center Navigation - scrolls below the top bar on small screens */}
-      <div className="block border-t border-white/10 bg-black lg:hidden">
-        <div className="no-scrollbar flex items-center justify-start gap-2 overflow-x-auto px-4 py-2 sm:justify-center">
-          <NavItem icon={<Building2 className="h-5 w-5" />} label="Hotels" href="/search?type=hotel" active />
-          <NavItem icon={<Home className="h-5 w-5" />} label="Villas" href="/search?type=villa" />
-          <NavItem icon={<Tent className="h-5 w-5" />} label="Homestays" href="/search?type=homestay" />
-          <NavItem icon={<Building className="h-5 w-5" />} label="Apartments" href="/search?type=apartment" />
         </div>
       </div>
     </header>
@@ -116,16 +111,16 @@ function NavItem({ icon, label, href, active = false }: { icon: ReactNode; label
   return (
     <Link
       href={href}
-      className={`group flex min-w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-all ${
+      className={`group flex items-center justify-center gap-2 rounded-full px-4 py-2 transition-all ${
         active 
-          ? "text-brand" 
-          : "text-white/90 hover:bg-white/10 hover:text-white"
+          ? "bg-brand/10 text-brand" 
+          : "text-muted hover:bg-canvas hover:text-ink-soft"
       }`}
     >
-      <div className={`transition-transform duration-200 group-hover:-translate-y-0.5 ${active ? "text-brand" : "text-white/90 group-hover:text-white"}`}>
+      <div className={`transition-transform duration-200 group-hover:scale-110 ${active ? "text-brand" : "text-muted group-hover:text-ink-soft"}`}>
         {icon}
       </div>
-      <span className={`text-[11px] font-semibold tracking-wide ${active ? "text-brand" : "text-white/90 group-hover:text-white"}`}>
+      <span className={`text-sm font-semibold ${active ? "text-brand" : "text-ink-soft"}`}>
         {label}
       </span>
     </Link>

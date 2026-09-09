@@ -23,7 +23,16 @@ export default function WishlistPage() {
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {saved.map((property) => (
-            <PropertyCard key={property.id} property={property} />
+            <PropertyCard key={property.id} property={{
+              id: property.id,
+              title: property.name,
+              city: property.location,
+              locality: "",
+              propertyType: property.type,
+              primaryImage: property.image,
+              pricePerNight: property.pricePerNight,
+              rating: property.rating
+            }} />
           ))}
         </div>
       )}

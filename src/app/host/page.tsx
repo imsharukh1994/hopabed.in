@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { useAuthModal } from "@/components/AuthProvider";
 import { getHostProperties, getHostStats } from "@/lib/api";
 
@@ -57,31 +59,53 @@ export default function HostDashboardPage() {
         </div>
       )}
 
-      <h2 className="mb-4 text-xl font-semibold">My Properties</h2>
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-xl font-semibold">My Properties</h2>
+        <Link
+          href="/host/properties/new"
+          className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-dark"
+        >
+          <Plus className="h-4 w-4" />
+          Add Property
+        </Link>
+      </div>
 
       {properties.length === 0 ? (
-        <p className="text-muted">No properties listed yet.</p>
+        <div className="rounded-2xl border border-dashed border-border bg-white/50 p-12 text-center">
+          <p className="mb-4 text-muted">You haven't listed any properties yet.</p>
+          <Link
+            href="/host/properties/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2.5 font-semibold text-white transition-all hover:bg-brand-dark"
+          >
+            <Plus className="h-5 w-5" />
+            Create Your First Listing
+          </Link>
+        </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {properties.map((property) => (
-            <div
+            <Link
               key={property.id}
-              className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm"
+              href={`/host/properties/${property.id}`}
+              className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all hover:border-brand/30 hover:shadow-md"
             >
-              <Image
-                src={property.coverImage}
-                alt={property.title}
-                width={400}
-                height={250}
-                className="h-48 w-full object-cover"
-              />
-              <div className="p-4">
-                <h3 className="font-semibold">{property.title}</h3>
-                <span className="text-sm text-muted capitalize">
+              <div className="relative">
+                <Image
+                  src={property.coverImage || "/placeholder-property.jpg"}
+                  alt={property.title}
+                  width={400}
+                  height={250}
+                  className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur-sm">
                   {property.status}
-                </span>
+                </div>
               </div>
-            </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-ink-soft transition-colors group-hover:text-brand">{property.title}</h3>
+                <p className="mt-1 text-sm text-muted">Manage property & rooms →</p>
+              </div>
+            </Link>
           ))}
         </div>
       )}

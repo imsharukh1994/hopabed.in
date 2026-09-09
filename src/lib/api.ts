@@ -246,3 +246,16 @@ export async function verifyAccount(token: string) {
 		return { success: false, message: "Verification failed." };
 	}
 }
+
+export async function createRoom(propertyId: string, roomData: Record<string, unknown>) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}/rooms`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(roomData),
+	});
+	const body = (await response.json()) as { data?: { room: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to add room.");
+	return body.data.room;
+}

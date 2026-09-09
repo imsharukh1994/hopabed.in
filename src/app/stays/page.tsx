@@ -17,7 +17,16 @@ export default async function StaysPage({
       <p className="mt-2 text-sm text-muted">Demo listings for preview. Live inventory will come from the Hopebed API.</p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((property) => (
-          <PropertyCard key={property.id} property={property} />
+          <PropertyCard key={property.id} property={{
+            id: property.id,
+            title: property.name,
+            city: property.location,
+            locality: "",
+            propertyType: property.type,
+            primaryImage: property.image,
+            pricePerNight: property.pricePerNight,
+            rating: property.rating
+          }} />
         ))}
       </div>
       {filtered.length === 0 ? <p className="mt-8 text-muted">No demo stays in this category yet.</p> : null}
