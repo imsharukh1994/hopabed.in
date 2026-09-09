@@ -2,213 +2,57 @@
 
 import { useEffect, useState } from "react";
 import { useAuthModal } from "@/components/AuthProvider";
-import {
-  getAdminStats,
-  getPendingProperties,
-  verifyProperty,
-} from "@/lib/api";
-import { CheckCircle, XCircle } from "lucide-react";
+import { getBookings } from "@/lib/api";
 
-type AdminStats = {
-  users: number;
-  hosts: number;
-  properties: number;
-  bookings: number;
-};
-
-type PropertyHost = {
-  businessName?: string;
-  user?: {
-    name?: string;
-  };
-};
-
-type PendingProperty = {
-  _id: string;
-  title: string;
-  host?: PropertyHost;
-  locality?: string;
-  city?: string;
-  propertyType?: string;
-};
-
-export default function AdminDashboardPage() {
-  const { user } = useAuthModal();
-
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [properties, setProperties] = useState<PendingProperty[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (user?.role === "admin") {
-      Promise.all([getAdminStats(), getPendingProperties()])
-        .then(([statsRes, propsRes]) => {
-          setStats(statsRes as AdminStats);
-          setProperties(propsRes as PendingProperty[]);
-        })
-        .catch(() => {
-          // Optionally handle fetch errors here
-          console.error("Failed to load admin dashboard data");
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
-  }, [user]);
-
-  if (!user || user.role !== "admin") {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-        <h1 className="mb-4 text-2xl font-bold text-ink-soft">
-          Admin Dashboard
-        </h1>
-        <p className="text-muted">
-          You do not have permission to view this page.
-        </p>
-      </div>
-    );
-  }
-
-  const handleVerify = async (
-    id: string,
-    status: "VERIFIED" | "REJECTED"
-  ) => {
-    setProcessingId(id);
-    try {
-      await verifyProperty(id, status);
-
-      setProperties((currentProperties) =>
-        currentProperties.filter((property) => property._id !== id)
-      );
-      alert(`Property ${status.toLowerCase()} successfully.`);
-    } catch {
-      alert("Error updating property verification status.");
-    } finally {
-      setProcessingId(null);
-    }
-  };
-
-  return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="mb-8 text-2xl font-bold text-ink-soft">
-        Admin Dashboard
-      </h1>
-      {loading ? (
-        <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-32 animate-pulse rounded-2xl bg-white shadow-sm"
-            />
-          ))}
-        </div>
-      ) : stats ? (
-        <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Users" value={stats.users} />
-          <StatCard title="Total Hosts" value={stats.hosts} />
-          <StatCard title="Properties" value={stats.properties} />
-          <StatCard title="Bookings" value={stats.bookings} />
-        </div>
-      ) : null}
-
-      <h2 className="mb-4 text-xl font-semibold">
-        Properties Pending Verification
-      </h2>
-
-      {properties.length === 0 && !loading ? (
-        <div className="rounded-2xl border border-border bg-white p-12 text-center shadow-sm">
-          <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500" />
-          <h2 className="mb-2 text-xl font-semibold">All caught up!</h2>
-          <p className="text-muted">
-            There are no properties waiting for verification.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-border bg-canvas">
-              <tr>
-                <th className="px-6 py-4 font-semibold text-ink-soft">
-                  Property
-                </th>
-                <th className="px-6 py-4 font-semibold text-ink-soft">
-                  Host
-                </th>
-                <th className="px-6 py-4 font-semibold text-ink-soft">
-                  Location
-                </th>
-                <th className="px-6 py-4 font-semibold text-ink-soft">
-                  Type
-                </th>
-                <th className="px-6 py-4 text-right font-semibold text-ink-soft">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {properties.map((prop) => (
-                <tr
-                  key={prop._id}
-                  className="transition hover:bg-canvas/50"
-                >
-                  <td className="px-6 py-4 font-medium text-ink-soft">
-                    {prop.title}
-                  </td>
-                  <td className="px-6 py-4">
-                    {prop.host?.businessName ||
-                      prop.host?.user?.name ||
-                      "Unknown"}
-                  </td>
-                  <td className="px-6 py-4">
-                    {prop.locality || "—"}, {prop.city || "—"}
-                  </td>
-                  <td className="px-6 py-4 capitalize">
-                    {prop.propertyType || "—"}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleVerify(prop._id, "VERIFIED")}
-                      disabled={processingId === prop._id}
-                      className="mr-2 inline-flex items-center gap-1 text-green-600 hover:underline disabled:opacity-50"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      {processingId === prop._id ? "Processing..." : "Approve"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleVerify(prop._id, "REJECTED")}
-                      disabled={processingId === prop._id}
-                      className="inline-flex items-center gap-1 text-red-600 hover:underline disabled:opacity-50"
-                    >
-                      <XCircle className="h-4 w-4" />
-                      {processingId === prop._id ? "Processing..." : "Reject"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
+interface Booking {
+  id: string;
+  propertyId: string;
+  propertyTitle: string;
+  checkIn: string;
+  checkOut: string;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED";
+  totalPrice: number;
 }
 
-function StatCard({
-  title,
-  value,
-}: {
-  title: string;
-  value: number;
-}) {
+export default function BookingsPage() {
+  const { user } = useAuthModal();
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    getBookings(user.id)
+      .then((data) => setBookings(data as Booking[]))
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  if (loading) return <p className="px-6 py-10 text-center">Loading bookings...</p>;
+
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm">
-      <p className="text-sm text-muted">{title}</p>
-      <p className="mt-2 text-3xl font-bold text-ink-soft">{value}</p>
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <h1 className="mb-6 text-2xl font-bold text-ink-soft">My Bookings</h1>
+      {bookings.length === 0 ? (
+        <p className="text-muted">You have no bookings yet.</p>
+      ) : (
+        <ul className="space-y-4">
+          {bookings.map((booking) => (
+            <li
+              key={booking.id}
+              className="rounded-2xl border border-border bg-white p-6 shadow-sm"
+            >
+              <div className="flex justify-between">
+                <h2 className="font-semibold">{booking.propertyTitle}</h2>
+                <span className="text-sm capitalize">{booking.status}</span>
+              </div>
+              <p className="text-sm text-muted">
+                Check-in: {new Date(booking.checkIn).toLocaleDateString()} – Check-out:{" "}
+                {new Date(booking.checkOut).toLocaleDateString()}
+              </p>
+              <p className="mt-2 font-medium">Total: ${booking.totalPrice}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
