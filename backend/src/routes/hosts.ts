@@ -5,6 +5,7 @@ import { requireAuth, requireRole, type AuthenticatedRequest } from '../middlewa
 import { Property } from '../models/Property.js';
 import { Room } from '../models/Room.js';
 import { Booking } from '../models/Booking.js';
+import { PropertyAvailability } from '../models/PropertyAvailability.js';
 
 const router = Router();
 
@@ -182,6 +183,103 @@ router.post('/verify-pass', requireAuth, requireRole('host', 'admin'), async (re
     await booking.save();
 
     res.json({ success: true, data: { booking } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/properties/:propertyId/rooms/:roomId/availability', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await Host.findOne({ user: req.auth?.userId });
+    if (!host) {
+      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
+      return;
+    }
+
+    const { propertyId, roomId } = req.params;
+    const property = await Property.findOne({ _id: propertyId, host: host._id });
+    if (!property) {
+      res.status(404).json({ success: false, error: { message: 'Property not found.' } });
+      return;
+    }
+
+    const { start, end } = req.query;
+    const query: any = { room: roomId, property: propertyId };
+    
+    if (start && end) {
+      query.date = { 
+        $gte: new Date(start as string), 
+        $lte: new Date(end as string) 
+      };
+    }
+
+    const availability = await PropertyAvailability.find(query).sort({ date: 1 });
+    res.json({ success: true, data: { availability } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/properties/:propertyId/rooms/:roomId/availability', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await Host.findOne({ user: req.auth?.userId });
+    if (!host) {
+      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
+      return;
+    }
+
+    const { propertyId, roomId } = req.params;
+    const property = await Property.findOne({ _id: propertyId, host: host._id });
+    if (!property) {
+      res.status(404).json({ success: false, error: { message: 'Property not found.' } });
+      return;
+    }
+
+    const room = await Room.findOne({ _id: roomId, property: propertyId });
+    if (!room) {
+      res.status(404).json({ success: false, error: { message: 'Room not found.' } });
+      return;
+    }
+
+    const schema = z.object({
+      startDate: z.string(),
+      endDate: z.string(),
+      status: z.enum(['available', 'blocked']),
+      price: z.number().min(0).optional(),
+    });
+
+    const input = schema.parse(req.body);
+    const start = new Date(input.startDate);
+    const end = new Date(input.endDate);
+    
+    // Normalize dates to midnight UTC to prevent timezone drifting bugs
+    start.setUTCHours(0,0,0,0);
+    end.setUTCHours(0,0,0,0);
+
+    const dates: Date[] = [];
+    let current = new Date(start);
+    while (current <= end) {
+      dates.push(new Date(current));
+      current.setUTCDate(current.getUTCDate() + 1);
+    }
+
+    // Bulk upsert
+    const ops = dates.map(date => ({
+      updateOne: {
+        filter: { property: propertyId, room: roomId, date },
+        update: {
+          $set: {
+            status: input.status,
+            price: input.price !== undefined ? input.price : room.pricePerNight,
+          }
+        },
+        upsert: true
+      }
+    }));
+
+    await PropertyAvailability.bulkWrite(ops);
+
+    res.json({ success: true, data: { message: 'Availability updated successfully.', count: dates.length } });
   } catch (error) {
     next(error);
   }

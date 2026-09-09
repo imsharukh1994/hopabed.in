@@ -285,3 +285,31 @@ export async function createRoom(propertyId: string, roomData: Record<string, un
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to add room.");
 	return body.data.room;
 }
+
+export async function getRoomAvailability(propertyId: string, roomId: string, startDate?: string, endDate?: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	
+	let url = `${API_BASE_URL}/api/hosts/properties/${propertyId}/rooms/${roomId}/availability`;
+	if (startDate && endDate) {
+		url += `?start=${startDate}&end=${endDate}`;
+	}
+
+	const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+	const body = (await response.json()) as { data?: { availability: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load calendar.");
+	return body.data.availability;
+}
+
+export async function updateRoomAvailability(propertyId: string, roomId: string, input: { startDate: string; endDate: string; status: 'available' | 'blocked'; price?: number }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}/rooms/${roomId}/availability`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: { message: string, count: number }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to update calendar.");
+	return body.data;
+}

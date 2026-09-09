@@ -5,6 +5,7 @@ import { getPropertyDetails, createRoom, PropertyDetails } from "@/lib/api";
 import { ArrowLeft, Loader2, Plus, BedDouble, Users, IndianRupee } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { RoomCalendarManager } from "@/components/RoomCalendarManager";
 
 const ROOM_TYPES = ["Standard", "Deluxe", "Suite", "Entire Place"];
 const ROOM_AMENITIES = ["King Bed", "Queen Bed", "Twin Bed", "Ensuite Bathroom", "Balcony", "Mini Fridge", "Work Desk", "Sea View"];
@@ -15,6 +16,7 @@ export default function PropertyManagementPage({ params }: { params: Promise<{ i
   const [property, setProperty] = useState<PropertyDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [managingCalendarFor, setManagingCalendarFor] = useState<string | null>(null);
 
   const [isAddingRoom, setIsAddingRoom] = useState(false);
   const [roomLoading, setRoomLoading] = useState(false);
@@ -248,7 +250,7 @@ export default function PropertyManagementPage({ params }: { params: Promise<{ i
                   <BedDouble className="h-5 w-5" />
                 </div>
               </div>
-              <div className="mt-6 flex flex-col gap-3 border-t border-border pt-4">
+                <div className="mt-6 flex flex-col gap-3 border-t border-border pt-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-2 text-muted"><Users className="h-4 w-4" /> Capacity</span>
                   <span className="font-medium text-ink-soft">Up to {room.capacity} guests</span>
@@ -261,7 +263,24 @@ export default function PropertyManagementPage({ params }: { params: Promise<{ i
                   <span className="text-muted">Total Inventory</span>
                   <span className="font-medium text-ink-soft">{room.inventory} rooms available</span>
                 </div>
+                <div className="mt-2 pt-2 border-t border-border border-dashed">
+                  <button 
+                    onClick={() => setManagingCalendarFor(managingCalendarFor === room.id ? null : room.id)}
+                    className="w-full rounded-lg bg-black/5 px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-black/10"
+                  >
+                    {managingCalendarFor === room.id ? "Close Calendar" : "Manage Calendar & Pricing"}
+                  </button>
+                </div>
               </div>
+              
+              {managingCalendarFor === room.id && (
+                <RoomCalendarManager 
+                  propertyId={property.id} 
+                  roomId={room.id} 
+                  roomName={room.name} 
+                  basePrice={room.pricePerNight} 
+                />
+              )}
             </div>
           ))}
         </div>
