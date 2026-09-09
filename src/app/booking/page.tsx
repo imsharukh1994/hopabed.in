@@ -14,14 +14,14 @@ interface Booking {
   totalPrice: number;
 }
 
-export default function BookingsPage() {
+export default function BookingPage() {
   const { user } = useAuthModal();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
-    getBookings(user.id)
+    getBookings()
       .then((data) => setBookings(data as Booking[]))
       .finally(() => setLoading(false));
   }, [user]);
