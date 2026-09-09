@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthModal } from "@/components/AuthProvider";
 import { getPropertyDetails, createRoom, PropertyDetails } from "@/lib/api";
 import { ArrowLeft, Loader2, Plus, BedDouble, Users, IndianRupee } from "lucide-react";
 import Link from "next/link";
@@ -12,9 +10,7 @@ const ROOM_TYPES = ["Standard", "Deluxe", "Suite", "Entire Place"];
 const ROOM_AMENITIES = ["King Bed", "Queen Bed", "Twin Bed", "Ensuite Bathroom", "Balcony", "Mini Fridge", "Work Desk", "Sea View"];
 
 export default function PropertyManagementPage({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter();
   const resolvedParams = use(params);
-  const { user } = useAuthModal();
   
   const [property, setProperty] = useState<PropertyDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,8 +31,10 @@ export default function PropertyManagementPage({ params }: { params: Promise<{ i
     try {
       const data = await getPropertyDetails(resolvedParams.id);
       setProperty(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to load property details.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Failed to load property details.");
+      }
     } finally {
       setLoading(false);
     }
@@ -69,8 +67,10 @@ export default function PropertyManagementPage({ params }: { params: Promise<{ i
       setIsAddingRoom(false);
       setRoomForm({ name: "", roomType: "Deluxe", capacity: "2", inventory: "1", pricePerNight: "", amenities: [] });
       await fetchProperty();
-    } catch (err: any) {
-      alert(err.message || "Failed to add room.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message || "Failed to add room.");
+      }
     } finally {
       setRoomLoading(false);
     }
@@ -267,7 +267,7 @@ export default function PropertyManagementPage({ params }: { params: Promise<{ i
       ) : (
         !isAddingRoom && (
           <div className="rounded-2xl border border-dashed border-border bg-white p-10 text-center">
-            <p className="text-muted">No rooms added yet. Guests won't be able to book this property until you add inventory.</p>
+            <p className="text-muted">No rooms added yet. Guests won&apos;t be able to book this property until you add inventory.</p>
           </div>
         )
       )}

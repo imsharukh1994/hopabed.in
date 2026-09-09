@@ -219,7 +219,7 @@ export async function verifyBookingPass(bookingId: string) {
 	return body.data.booking;
 }
 
-export async function getHostStats(userId?: string) {
+export async function getHostStats() {
 	const token = localStorage.getItem("hopebed_access_token");
 	if (!token) throw new Error("Please log in.");
 	try {
@@ -242,7 +242,7 @@ export async function verifyAccount(token: string) {
 		const body = await response.json();
 		if (!response.ok) return { success: false, message: body.error?.message ?? "Verification failed." };
 		return { success: true, message: body.message ?? "Account verified successfully." };
-	} catch (error) {
+	} catch {
 		return { success: false, message: "Verification failed." };
 	}
 }

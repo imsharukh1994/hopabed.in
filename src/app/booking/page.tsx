@@ -14,18 +14,18 @@ status: "PENDING" | "CONFIRMED" | "CANCELLED";
 totalPrice: number;
 }
 
-function isBooking(value: any): value is Booking {
-return (
-typeof value.id === "string" &&
-typeof value.propertyId === "string" &&
-typeof value.propertyTitle === "string" &&
-typeof value.checkIn === "string" &&
-typeof value.checkOut === "string" &&
-(value.status === "PENDING" ||
-value.status === "CONFIRMED" ||
-value.status === "CANCELLED") &&
-typeof value.totalPrice === "number"
-);
+function isBooking(value: unknown): value is Booking {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.propertyId === "string" &&
+    typeof v.propertyTitle === "string" &&
+    typeof v.checkIn === "string" &&
+    typeof v.checkOut === "string" &&
+    (v.status === "PENDING" || v.status === "CONFIRMED" || v.status === "CANCELLED") &&
+    typeof v.totalPrice === "number"
+  );
 }
 
 export default function BookingPage() {

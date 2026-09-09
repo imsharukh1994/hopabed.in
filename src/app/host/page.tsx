@@ -28,7 +28,7 @@ export default function HostDashboardPage() {
 
   useEffect(() => {
     if (!user || user.role !== "host") return;
-    Promise.all([getHostProperties(), getHostStats(user.id)])
+    Promise.all([getHostProperties(), getHostStats()])
       .then(([props, stats]) => {
         setProperties(props as unknown as HostProperty[]);
         setStats(stats as HostStats);
@@ -72,7 +72,7 @@ export default function HostDashboardPage() {
 
       {properties.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-white/50 p-12 text-center">
-          <p className="mb-4 text-muted">You haven't listed any properties yet.</p>
+          <p className="mb-4 text-muted">You haven&apos;t listed any properties yet.</p>
           <Link
             href="/host/properties/new"
             className="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2.5 font-semibold text-white transition-all hover:bg-brand-dark"

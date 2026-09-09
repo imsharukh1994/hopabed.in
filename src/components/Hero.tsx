@@ -1,6 +1,4 @@
-import { Headphones, Lock, ShieldCheck } from "lucide-react";
 import Image from "next/image";
-import type { ReactNode } from "react";
 import { SearchBar } from "./SearchBar";
 
 const HERO_IMAGE =

@@ -50,8 +50,10 @@ export default function NewPropertyPage() {
       });
       // Redirect to the property management page to add rooms
       router.push(`/host/properties/${property._id}`);
-    } catch (err: any) {
-      setError(err.message || "Failed to create property.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Failed to create property.");
+      }
       setLoading(false);
     }
   };
@@ -65,7 +67,7 @@ export default function NewPropertyPage() {
 
       <div className="rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-10">
         <h1 className="text-2xl font-bold text-ink-soft">List a New Property</h1>
-        <p className="mt-2 text-sm text-muted">Tell us about the space you're hosting. You'll add specific rooms and inventory in the next step.</p>
+        <p className="mt-2 text-sm text-muted">Tell us about the space you&apos;re hosting. You&apos;ll add specific rooms and inventory in the next step.</p>
 
         {error && (
           <div className="mt-6 rounded-lg bg-red-50 p-4 text-sm text-red-600">
