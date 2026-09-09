@@ -38,6 +38,7 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [properties, setProperties] = useState<PendingProperty[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.role === "admin") {
@@ -45,6 +46,10 @@ export default function AdminDashboardPage() {
         .then(([statsRes, propsRes]) => {
           setStats(statsRes as AdminStats);
           setProperties(propsRes as PendingProperty[]);
+        })
+        .catch(() => {
+          // Optionally handle fetch errors here
+          console.error("Failed to load admin dashboard data");
         })
         .finally(() => {
           setLoading(false);
@@ -71,21 +76,18 @@ export default function AdminDashboardPage() {
     id: string,
     status: "VERIFIED" | "REJECTED"
   ) => {
+    setProcessingId(id);
     try {
       await verifyProperty(id, status);
 
       setProperties((currentProperties) =>
-        currentProperties.filter(
-          (property) => property._id !== id
-        )
+        currentProperties.filter((property) => property._id !== id)
       );
-      alert(
-        `Property ${status.toLowerCase()} successfully.`
-      );
+      alert(`Property ${status.toLowerCase()} successfully.`);
     } catch {
-      alert(
-        "Error updating property verification status."
-      );
+      alert("Error updating property verification status.");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -170,18 +172,20 @@ export default function AdminDashboardPage() {
                     <button
                       type="button"
                       onClick={() => handleVerify(prop._id, "VERIFIED")}
-                      className="mr-2 inline-flex items-center gap-1 text-green-600 hover:underline"
+                      disabled={processingId === prop._id}
+                      className="mr-2 inline-flex items-center gap-1 text-green-600 hover:underline disabled:opacity-50"
                     >
                       <CheckCircle className="h-4 w-4" />
-                      Approve
+                      {processingId === prop._id ? "Processing..." : "Approve"}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleVerify(prop._id, "REJECTED")}
-                      className="inline-flex items-center gap-1 text-red-600 hover:underline"
+                      disabled={processingId === prop._id}
+                      className="inline-flex items-center gap-1 text-red-600 hover:underline disabled:opacity-50"
                     >
                       <XCircle className="h-4 w-4" />
-                      Reject
+                      {processingId === prop._id ? "Processing..." : "Reject"}
                     </button>
                   </td>
                 </tr>
