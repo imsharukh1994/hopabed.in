@@ -218,3 +218,31 @@ export async function verifyBookingPass(bookingId: string) {
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to verify stay pass.");
 	return body.data.booking;
 }
+
+export async function getHostStats(userId?: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	try {
+		const response = await fetch(`${API_BASE_URL}/api/hosts/stats`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+		if (!response.ok) return { totalProperties: 0, totalBookings: 0, totalEarnings: 0 };
+		const body = await response.json();
+		return body.data || { totalProperties: 0, totalBookings: 0, totalEarnings: 0 };
+	} catch {
+		return { totalProperties: 0, totalBookings: 0, totalEarnings: 0 };
+	}
+}
+
+export async function verifyAccount(token: string) {
+	try {
+		const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ token }),
+		});
+		const body = await response.json();
+		if (!response.ok) return { success: false, message: body.error?.message ?? "Verification failed." };
+		return { success: true, message: body.message ?? "Account verified successfully." };
+	} catch (error) {
+		return { success: false, message: "Verification failed." };
+	}
+}
