@@ -46,7 +46,9 @@ Promise.all([getAdminStats(), getPendingProperties()])
 setStats(statsRes as AdminStats);
 setProperties(propsRes as PendingProperty[]);
 })
-.finally(() => setLoading(false));
+.finally(() => {
+setLoading(false);
+});
 } else {
 setLoading(false);
 }
@@ -167,8 +169,7 @@ Admin Dashboard
                   "Unknown"}
               </td>
               <td className="px-6 py-4">
-                {prop.locality || "—"},{" "}
-                {prop.city || "—"}
+                {prop.locality || "—"}, {prop.city || "—"}
               </td>
               <td className="px-6 py-4 capitalize">
                 {prop.propertyType || "—"}
