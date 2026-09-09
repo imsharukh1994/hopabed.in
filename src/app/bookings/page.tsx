@@ -21,14 +21,12 @@ export default function BookingsPage() {
 
   useEffect(() => {
     if (!user) return;
-    getBookings(user.id)
+    getBookings()
       .then((data) => setBookings(data as Booking[]))
       .finally(() => setLoading(false));
   }, [user]);
 
-  if (loading) {
-    return <p className="px-6 py-10 text-center">Loading bookings...</p>;
-  }
+  if (loading) return <p className="px-6 py-10 text-center">Loading bookings...</p>;
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
