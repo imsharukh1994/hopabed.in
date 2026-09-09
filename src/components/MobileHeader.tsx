@@ -11,7 +11,7 @@ export function MobileHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-ink lg:hidden">
+    <header className="sticky top-0 z-50 bg-[#000] lg:hidden">
       <div className="flex h-14 items-center justify-between px-4">
         <Logo compact />
         <button type="button" className="text-white" aria-label="Open menu" onClick={() => setMenuOpen(true)}>
