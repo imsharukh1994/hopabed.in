@@ -4,7 +4,7 @@
 ## 🎯 Verification & Code Status
 - **TypeScript & Production Build:** Frontend (`/`) and Backend (`backend/`) pass static compilation with **0 errors**. `npm run build` completed with 31/31 static routes generated cleanly.
 - **Concurrency & Overbooking Guard:** MongoDB version tag lock (`$inc: { __v: 1 }`) on `Room` updates ensures zero double-bookings under concurrent traffic.
-- **PayU Gateway & Webhooks (TASK #7):** **COMPLETE** — Verified existing PayU Live Merchant Dashboard webhooks for Successful & Failed payment events point directly to `https://api.hopebed.in/api/payments/payu-webhook` without duplication. Server-side price calculation, HMAC-SHA512 signature validation, timing-safe reverse hash verification (`crypto.timingSafeEqual`), duplicate webhook idempotency, and state transition to `CONFIRMED` fully tested via `test_payu_production.ts`.
+- **PayU Gateway & Webhooks (TASK #7 & #8):** **COMPLETE** — Verified existing PayU Live Merchant Dashboard webhooks point to `https://api.hopebed.in/api/payments/payu-webhook`. Hardened webhook handler with timing-safe HMAC-SHA512 validation, amount pre-verification, atomic `findOneAndUpdate` state transitions (`$nin: ['captured', 'failed', 'refunded']`), duplicate webhook idempotency (`HTTP 200 Already processed`), and single-dispatch email notification protection fully tested via `test_payu_idempotency.ts`.
 - **Live PayU Credentials:** Configured `PAYU_ENV=production` with live credentials in `backend/.env` (gitignored).
 - **Stay Pass & QR Check-In:** Digital Stay Pass modal with QR code rendering (`qrcode.react`) on `/bookings` and host verification endpoint `/api/hosts/verify-pass` on `/verify`.
 

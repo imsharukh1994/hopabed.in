@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Setup environment and connect to DB
+dotenv.config({ path: path.join(process.cwd(), '.env') });
 dotenv.config({ path: path.join(process.cwd(), '../.env') });
 import { Booking } from '../src/models/Booking.js';
 import { Payment } from '../src/models/Payment.js';

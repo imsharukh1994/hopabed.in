@@ -9,6 +9,8 @@
 - `[x]` **Task #6 — PayU Signature/Hash Validation**: Verified timing-safe HMAC-SHA512 reverse-hash validation.
 - `[x]` **Task #7 — PayU Production Webhook URL**: **COMPLETE — Webhook URL verified on PayU Merchant Dashboard.**
   *(PayU Live Merchant Dashboard webhook confirmed pointing to `https://api.hopebed.in/api/payments/payu-webhook`).*
+- `[x]` **Task #8 — PayU Webhook Idempotency Protection**: **COMPLETE — Verified duplicate success/failed webhooks, terminal state guards, atomic findOneAndUpdate concurrency locks, & zero duplicate email notifications.**
+- `[x]` **Task #9 — PayU Payment Failure Handling**: **COMPLETE — Verified failed payment recording, booking confirmation prevention, failure redirect security, duplicate failed webhook idempotency, payment retry flow, and spoof protection.**
 
 ---
 

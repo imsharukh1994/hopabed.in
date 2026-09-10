@@ -58,16 +58,21 @@ router.post('/payu-init', requireAuth, async (req: AuthenticatedRequest, res, ne
     const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
     const hash = sha512(hashString);
 
-    // Create the Payment record in our DB
-    await Payment.create({
-      booking: booking._id,
-      user: userId,
-      amount: booking.totalAmount,
-      currency: 'INR',
-      paymentGateway: 'payu',
-      orderId: txnid,
-      status: 'pending',
-    });
+    // Create or update the Payment record in our DB for this booking (handles payment retries safely)
+    await Payment.findOneAndUpdate(
+      { booking: booking._id },
+      {
+        $set: {
+          user: userId,
+          amount: booking.totalAmount,
+          currency: 'INR',
+          paymentGateway: 'payu',
+          orderId: txnid,
+          status: 'pending',
+        },
+      },
+      { upsert: true, new: true }
+    );
 
     res.status(201).json({ 
       success: true, 
@@ -139,25 +144,35 @@ router.post('/payu-webhook', async (req, res, next) => {
       return;
     }
 
-    // Idempotency check
-    if (payment.status === 'captured' || payment.status === 'failed' || payment.status === 'refunded') {
-      res.status(200).send('Already processed');
-      return;
-    }
-
-    // Amount verification
+    // Amount verification MUST happen before idempotency status guard
     if (parseFloat(amount) !== payment.amount) {
       console.error('Amount mismatch in webhook for txnid:', txnid);
       res.status(400).send('Amount mismatch');
       return;
     }
 
-    if (status === 'success') {
-      payment.status = 'captured';
-      // Record raw PayU payload as metadata for audit
-      payment.metadata = { ...payment.metadata, payuWebhookResponse: req.body };
-      await payment.save();
+    // Atomic idempotency guard: only transition if status is not already in a terminal state
+    const targetStatus = status === 'success' ? 'captured' : 'failed';
+    const updatedPayment = await Payment.findOneAndUpdate(
+      {
+        _id: payment._id,
+        status: { $nin: ['captured', 'failed', 'refunded'] },
+      },
+      {
+        $set: {
+          status: targetStatus,
+          'metadata.payuWebhookResponse': req.body,
+        },
+      },
+      { new: true }
+    );
 
+    if (!updatedPayment) {
+      res.status(200).send('Already processed');
+      return;
+    }
+
+    if (status === 'success') {
       const booking = await Booking.findById(payment.booking)
         .populate<{ guest: { name: string; email: string } }>('guest', 'name email')
         .populate<{ property: { title: string } }>('property', 'title')
@@ -208,10 +223,6 @@ router.post('/payu-webhook', async (req, res, next) => {
         }
       }
     } else {
-      payment.status = 'failed';
-      payment.metadata = { ...payment.metadata, payuWebhookResponse: req.body };
-      await payment.save();
-
       const booking = await Booking.findById(payment.booking)
         .populate<{ guest: { name: string; email: string } }>('guest', 'name email')
         .populate<{ property: { title: string } }>('property', 'title');
