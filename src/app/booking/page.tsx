@@ -10,7 +10,7 @@ import Image from "next/image";
 function BookingForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, openModal } = useAuthModal();
+  const { user, openAuth } = useAuthModal();
   
   const propertyId = searchParams.get("property");
   const roomId = searchParams.get("room");
@@ -53,7 +53,7 @@ function BookingForm() {
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      openModal();
+      openAuth();
       return;
     }
     

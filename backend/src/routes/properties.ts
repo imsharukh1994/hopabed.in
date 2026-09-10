@@ -112,7 +112,7 @@ router.post('/:id/bookings', requireAuth, async (req: AuthenticatedRequest, res,
     let booking;
     await session.withTransaction(async () => {
       const property = await Property.findOne({ _id: propertyId, verificationStatus: 'VERIFIED', isVerified: true, isPublished: true }).session(session);
-      const room = await Room.findOne({ _id: input.roomId, property: propertyId, isActive: true }).session(session);
+      const room = await Room.findOneAndUpdate({ _id: input.roomId, property: propertyId, isActive: true }, { $inc: { __v: 1 } }, { new: true }).session(session);
       if (!property || !room || input.guests > room.capacity) throw new Error('ROOM_UNAVAILABLE');
       const overlap = await Booking.aggregate([{ $match: { room: room._id, status: { $in: ['pending', 'confirmed', 'checked_in'] }, checkIn: { $lt: input.checkOut }, checkOut: { $gt: input.checkIn } } }]).session(session);
       const bookedCount = overlap.reduce((total, item) => total + (item.roomCount ?? 1), 0);
