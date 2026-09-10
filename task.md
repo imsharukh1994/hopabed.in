@@ -32,25 +32,25 @@
 - `[x]` Frontend integration for Host Dashboard
 
 ## Day 4: The Booking Engine (Phase 3)
-- `[ ]` Implement Search API
-- `[ ]` Implement Availability Engine (double-booking prevention)
-- `[ ]` Implement Booking Creation API
-- `[ ]` Frontend integration for search and booking flow
+- `[x]` Implement Search API
+- `[x]` Implement Availability Engine (double-booking prevention)
+- `[x]` Implement Booking Creation API
+- `[x]` Frontend integration for search and booking flow
 
 ## Day 5: Payment Integration (Phase 4)
-- `[ ]` Build payment abstraction layer
-- `[ ]` Integrate Gateway (Razorpay/PayU)
-- `[ ]` Implement webhook handling
-- `[ ]` Frontend integration for checkout flow
+- `[x]` Build payment abstraction layer
+- `[x]` Integrate Gateway (Razorpay/PayU)
+- `[x]` Implement webhook handling
+- `[x]` Frontend integration for checkout flow
 
 ## Day 6: Dashboards & Administration (Phase 5)
-- `[ ]` Build Admin Dashboard APIs and Views
-- `[ ]` Complete Host Dashboard features
-- `[ ]` Implement Audit Logging
+- `[x]` Build Admin Dashboard APIs and Views
+- `[x]` Complete Host Dashboard features
+- `[x]` Implement Audit Logging
 
 ## Day 7: Stay Pass, QR Verification & Launch Prep (Phases 6 & 7)
-- `[ ]` Implement Stay Pass generation
-- `[ ]` Build QR Verification flow
-- `[ ]` Add Legal pages
-- `[ ]` Run End-to-End Testing
-- `[ ]` Final production readiness review
+- `[x]` Implement Stay Pass generation
+- `[x]` Build QR Verification flow
+- `[x]` Add Legal pages
+- `[x]` Run End-to-End Testing
+- `[x]` Final production readiness review
