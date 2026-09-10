@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import crypto from 'crypto';
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 import { Booking } from '../models/Booking.js';
 import { Payment } from '../models/Payment.js';
 import { User } from '../models/User.js';
+import { env } from '../config/env.js';
 import { sha512 } from 'js-sha512';
 
 const router = Router();
@@ -42,9 +44,9 @@ router.post('/payu-init', requireAuth, async (req: AuthenticatedRequest, res, ne
     const firstname = user.name.split(' ')[0] || 'Guest';
     const email = user.email;
 
-    const key = process.env.PAYU_MERCHANT_KEY || 'gtKFFx';
-    const salt = process.env.PAYU_MERCHANT_SALT || 'eCwWELxi';
-    const isTest = process.env.PAYU_ENV !== 'production';
+    const key = env.PAYU_MERCHANT_KEY;
+    const salt = env.PAYU_MERCHANT_SALT;
+    const isTest = env.PAYU_ENV !== 'production';
     const payuUrl = isTest ? 'https://test.payu.in/_payment' : 'https://secure.payu.in/_payment';
     
     // Hash sequence
@@ -73,8 +75,8 @@ router.post('/payu-init', requireAuth, async (req: AuthenticatedRequest, res, ne
         firstname,
         email,
         phone: '9999999999',
-        surl: `${process.env.API_URL || 'http://localhost:4000'}/api/payments/payu-success`,
-        furl: `${process.env.API_URL || 'http://localhost:4000'}/api/payments/payu-failure`,
+        surl: `${env.API_URL}/api/payments/payu-success`,
+        furl: `${env.API_URL}/api/payments/payu-failure`,
         hash
       } 
     });
@@ -86,22 +88,22 @@ router.post('/payu-init', requireAuth, async (req: AuthenticatedRequest, res, ne
 // PayU Success Redirect (Form POST from PayU) - Not the final source of truth
 router.post('/payu-success', async (req, res, next) => {
   try {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = env.FRONTEND_URL;
     // We just redirect to the frontend. We don't mark as confirmed here.
     res.redirect(`${frontendUrl}/bookings?success=true`);
   } catch (error) {
     console.error('PayU success redirect error:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/bookings?error=internal_error`);
+    res.redirect(`${env.FRONTEND_URL}/bookings?error=internal_error`);
   }
 });
 
 // PayU Failure Redirect
 router.post('/payu-failure', async (req, res, next) => {
   try {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = env.FRONTEND_URL;
     res.redirect(`${frontendUrl}/bookings?error=payment_failed`);
   } catch (error) {
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/bookings?error=internal_error`);
+    res.redirect(`${env.FRONTEND_URL}/bookings?error=internal_error`);
   }
 });
 
@@ -110,14 +112,17 @@ router.post('/payu-webhook', async (req, res, next) => {
   try {
     const { txnid, amount, productinfo, firstname, email, status, hash } = req.body;
     
-    const key = process.env.PAYU_MERCHANT_KEY || 'gtKFFx';
-    const salt = process.env.PAYU_MERCHANT_SALT || 'eCwWELxi';
+    const key = env.PAYU_MERCHANT_KEY;
+    const salt = env.PAYU_MERCHANT_SALT;
     
     // Verify reverse hash: sha512(SALT|status|||||||||||email|firstname|productinfo|amount|txnid|key)
     const reverseHashString = `${salt}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
     const calculatedHash = sha512(reverseHashString);
 
-    if (calculatedHash !== hash) {
+    const hashBuf = Buffer.from(typeof hash === 'string' ? hash : '', 'utf-8');
+    const calcBuf = Buffer.from(calculatedHash, 'utf-8');
+
+    if (hashBuf.length !== calcBuf.length || !crypto.timingSafeEqual(hashBuf, calcBuf)) {
       console.error('PayU Webhook Signature mismatch for txnid:', txnid);
       res.status(400).send('Invalid signature');
       return;
@@ -179,8 +184,8 @@ router.post('/payu-verify', requireAuth, async (req: AuthenticatedRequest, res, 
       return;
     }
 
-    const key = process.env.PAYU_MERCHANT_KEY || 'gtKFFx';
-    const salt = process.env.PAYU_MERCHANT_SALT || 'eCwWELxi';
+    const key = env.PAYU_MERCHANT_KEY;
+    const salt = env.PAYU_MERCHANT_SALT;
     const txnid = payment.orderId;
     const command = 'verify_payment';
     
@@ -188,7 +193,7 @@ router.post('/payu-verify', requireAuth, async (req: AuthenticatedRequest, res, 
     const hashStr = `${key}|${command}|${txnid}|${salt}`;
     const hash = sha512(hashStr);
 
-    const isTest = process.env.PAYU_ENV !== 'production';
+    const isTest = env.PAYU_ENV !== 'production';
     const verifyUrl = isTest ? 'https://test.payu.in/merchant/postservice?form=2' : 'https://info.payu.in/merchant/postservice.php?form=2';
 
     const verifyForm = new URLSearchParams();
@@ -252,15 +257,15 @@ router.post('/payu-refund', requireAuth, async (req: AuthenticatedRequest, res, 
     const txnid = payment.paymentId || payment.orderId; // Usually need the PayU ID (mihpayid), but fallback to txnid
     const cancelRefundToken = 'REF_' + Math.random().toString(36).substring(2, 10).toUpperCase() + '_' + Date.now();
 
-    const key = process.env.PAYU_MERCHANT_KEY || 'gtKFFx';
-    const salt = process.env.PAYU_MERCHANT_SALT || 'eCwWELxi';
+    const key = env.PAYU_MERCHANT_KEY;
+    const salt = env.PAYU_MERCHANT_SALT;
     const command = 'cancel_refund_transaction';
     
     // Hash format: sha512(key|command|var1|salt)
     const hashStr = `${key}|${command}|${txnid}|${salt}`;
     const hash = sha512(hashStr);
 
-    const isTest = process.env.PAYU_ENV !== 'production';
+    const isTest = env.PAYU_ENV !== 'production';
     const url = isTest ? 'https://test.payu.in/merchant/postservice?form=2' : 'https://info.payu.in/merchant/postservice.php?form=2';
 
     const params = new URLSearchParams();

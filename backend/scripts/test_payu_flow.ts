@@ -78,19 +78,19 @@ async function runTests() {
       isActive: true
     });
   } else {
-      // Ensure inventory is 1 for concurrency test
-      room.inventory = 1;
-      await room.save();
+    // Ensure inventory is 1 for concurrency test
+    room.inventory = 1;
+    await room.save();
   }
 
   const user = admin;
   const API_URL = 'http://localhost:4000'; // Assuming backend runs on 4000 for local test, but we will interact directly with DB/Logic for speed/simplicity, OR we can start the server.
   // Given we are writing a script, testing API layer requires the server to be running.
   // Instead of HTTP requests, I'll simulate the route logic directly since we have the DB models.
-  
+
   console.log("\n--- TEST 1: Concurrency (Write Skew) Test ---");
   console.log("Attempting to book the same room twice simultaneously...");
-  
+
   // We simulate what the route does.
   const createBookingSim = async () => {
     const session = await mongoose.startSession();
@@ -100,18 +100,18 @@ async function runTests() {
         const p = await Property.findOne({ _id: property._id, verificationStatus: 'VERIFIED', isVerified: true, isPublished: true }).session(session);
         const r = await Room.findOneAndUpdate({ _id: room._id, property: property._id, isActive: true }, { $inc: { __v: 1 } }, { new: true }).session(session);
         if (!p || !r) throw new Error('ROOM_UNAVAILABLE');
-        
+
         // Simulating the delay that allows race conditions
         await sleep(200);
 
         const checkIn = new Date(); checkIn.setDate(checkIn.getDate() + 1);
         const checkOut = new Date(); checkOut.setDate(checkOut.getDate() + 2);
-        
+
         const overlap = await Booking.aggregate([{ $match: { room: r._id, status: { $in: ['pending', 'confirmed', 'checked_in'] }, checkIn: { $lt: checkOut }, checkOut: { $gt: checkIn } } }]).session(session);
         const bookedCount = overlap.reduce((total, item) => total + (item.roomCount || 1), 0);
-        
+
         if (bookedCount + 1 > r.inventory) throw new Error('ROOM_UNAVAILABLE_OVERLAP');
-        
+
         const subtotal = r.pricePerNight * 1 * 1;
         [b] = await Booking.create([{ property: p._id, guest: user._id, host: p.host, room: r._id, checkIn, checkOut, nights: 1, guests: 1, roomCount: 1, pricePerNight: r.pricePerNight, subtotal, serviceFee: 0, taxes: 0, totalAmount: subtotal, currency: "TEST_INR", notes: "TEST_BOOKING", status: 'pending', paymentStatus: 'UNPAID' }], { session });
       });
@@ -125,7 +125,7 @@ async function runTests() {
 
   const results = await Promise.all([createBookingSim(), createBookingSim()]);
   console.log("Concurrency results:", results.map(r => r.error || `Success: Booking ${r._id}`));
-  
+
   const successfulBookings = results.filter(r => !r.error);
   if (successfulBookings.length !== 1) {
     console.error("FAIL: Expected exactly 1 successful booking and 1 failure due to lock.");
@@ -144,7 +144,7 @@ async function runTests() {
   const productinfo = `Booking ${booking._id}`;
   const firstname = "Test";
   const email = "test@example.com";
-  
+
   const payment = await Payment.create({
     booking: booking._id,
     user: user._id,
@@ -155,7 +155,7 @@ async function runTests() {
     status: 'pending',
   });
   console.log("Payment initialized with txnid:", txnid, "Status:", payment.status);
-  
+
   console.log("\n--- TEST 3: Invalid Webhook (Signature mismatch) ---");
   // Simulated Webhook logic
   const processWebhook = async (payload) => {
@@ -163,12 +163,12 @@ async function runTests() {
     const reverseHashString = `${salt}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
     const calculatedHash = sha512(reverseHashString);
     if (calculatedHash !== hash) return "INVALID_SIGNATURE";
-    
+
     const pm = await Payment.findOne({ orderId: txnid });
     if (!pm) return "PAYMENT_NOT_FOUND";
     if (pm.status === 'captured' || pm.status === 'failed') return "ALREADY_PROCESSED";
     if (parseFloat(amount) !== pm.amount) return "AMOUNT_MISMATCH";
-    
+
     if (status === 'success') {
       pm.status = 'captured';
       await pm.save();
