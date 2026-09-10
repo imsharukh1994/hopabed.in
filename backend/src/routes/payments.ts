@@ -7,6 +7,11 @@ import { Payment } from '../models/Payment.js';
 import { User } from '../models/User.js';
 import { env } from '../config/env.js';
 import { sha512 } from 'js-sha512';
+import {
+  sendBookingConfirmationEmail,
+  sendHostBookingAlertEmail,
+  sendPaymentFailureEmail,
+} from '../services/emailService.js';
 
 const router = Router();
 
@@ -152,17 +157,74 @@ router.post('/payu-webhook', async (req, res, next) => {
       // Record raw PayU payload as metadata for audit
       payment.metadata = { ...payment.metadata, payuWebhookResponse: req.body };
       await payment.save();
-      
-      const booking = await Booking.findById(payment.booking);
+
+      const booking = await Booking.findById(payment.booking)
+        .populate<{ guest: { name: string; email: string } }>('guest', 'name email')
+        .populate<{ property: { title: string } }>('property', 'title')
+        .populate<{ room: { name: string; type?: string } }>('room', 'name type')
+        .populate<{ host: { user: { name: string; email: string } } }>({
+          path: 'host',
+          populate: { path: 'user', select: 'name email' },
+        });
+
       if (booking && booking.paymentStatus !== 'PAID') {
         booking.paymentStatus = 'PAID';
         booking.status = 'confirmed';
         await booking.save();
+
+        const guestName = booking.guest?.name || firstname || 'Guest';
+        const guestEmail = booking.guest?.email || email;
+        const propertyTitle = booking.property?.title || productinfo || 'Hopebed Property';
+        const roomName = (booking.room as any)?.name || (booking.room as any)?.type || 'Standard Room';
+        const stayPassUrl = `${env.FRONTEND_URL}/bookings`;
+
+        if (guestEmail) {
+          sendBookingConfirmationEmail({
+            guestName,
+            guestEmail,
+            bookingId: String(booking._id),
+            propertyTitle,
+            roomName,
+            checkIn: booking.checkIn.toISOString(),
+            checkOut: booking.checkOut.toISOString(),
+            totalAmount: booking.totalAmount,
+            stayPassUrl,
+          }).catch((err) => console.error('[Webhook] Guest confirmation email error:', err));
+        }
+
+        const hostUser = (booking.host as any)?.user;
+        if (hostUser?.email) {
+          sendHostBookingAlertEmail({
+            hostName: hostUser.name || 'Host',
+            hostEmail: hostUser.email,
+            bookingId: String(booking._id),
+            propertyTitle,
+            roomName,
+            guestName,
+            checkIn: booking.checkIn.toISOString(),
+            checkOut: booking.checkOut.toISOString(),
+            totalAmount: booking.totalAmount,
+          }).catch((err) => console.error('[Webhook] Host booking alert email error:', err));
+        }
       }
     } else {
       payment.status = 'failed';
       payment.metadata = { ...payment.metadata, payuWebhookResponse: req.body };
       await payment.save();
+
+      const booking = await Booking.findById(payment.booking)
+        .populate<{ guest: { name: string; email: string } }>('guest', 'name email')
+        .populate<{ property: { title: string } }>('property', 'title');
+
+      if (booking && booking.guest?.email) {
+        sendPaymentFailureEmail({
+          guestName: booking.guest.name || firstname || 'Guest',
+          guestEmail: booking.guest.email || email,
+          bookingId: String(booking._id),
+          propertyTitle: booking.property?.title || 'Hopebed Property',
+          amount: payment.amount,
+        }).catch((err) => console.error('[Webhook] Payment failure email error:', err));
+      }
     }
 
     res.status(200).send('Webhook processed');

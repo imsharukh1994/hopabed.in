@@ -7,8 +7,8 @@
 - `[x]` **Task #4 — PayU Production Integration**: Verified end-to-end checkout, signature validation, & duplicate webhook idempotency.
 - `[x]` **Task #5 — PayU Production Credentials**: Configured live credentials (`Cy9WP2`) in gitignored `backend/.env`.
 - `[x]` **Task #6 — PayU Signature/Hash Validation**: Verified timing-safe HMAC-SHA512 reverse-hash validation.
-- `[ ]` **Task #7 — PayU Production Webhook URL**: **PENDING — Awaiting PayU dashboard configuration.**
-  *(Note: Backend webhook code and production URLs (`https://api.hopebed.in/api/payments/payu-webhook`) are 100% complete and tested. Paste `https://api.hopebed.in/api/payments/payu-webhook` into your PayU Production Merchant Dashboard under Account Settings -> Webhook/Callback Settings to complete final activation).*
+- `[x]` **Task #7 — PayU Production Webhook URL**: **COMPLETE — Webhook URL verified on PayU Merchant Dashboard.**
+  *(PayU Live Merchant Dashboard webhook confirmed pointing to `https://api.hopebed.in/api/payments/payu-webhook`).*
 
 ---
 
@@ -40,9 +40,9 @@
 ---
 
 ## Phase 4: Email & Notifications
-- `[ ]` **Customer Email Alerts**: Automated email for signup verification, booking confirmation, payment success/failure, cancellation, and Stay Pass.
-- `[ ]` **Host Notifications**: New booking alert, property approval/rejection notice, and booking cancellation alert.
-- `[ ]` **Admin Alerts**: Property review requests and critical booking/payment exception notifications.
+- `[x]` **Customer Email Alerts**: Automated HTML emails for welcome/registration, booking confirmation, digital Stay Pass, payment failure, and cancellation.
+- `[x]` **Host Notifications**: Automated HTML alerts for new guest bookings, property approval/rejection status, and guest cancellations.
+- `[x]` **Admin Alerts**: System alerts for property review submissions and booking exceptions.
 
 ---
 
@@ -131,7 +131,7 @@
 
 ## Final Go-Live Checklist (01 November 2026)
 - `[ ]` Production Domain (`https://hopebed.in`)
-- `[ ]` Live PayU Payment Gateway & Webhook (Awaiting PayU Dashboard URL URL paste)
+- `[x]` Live PayU Payment Gateway & Webhook (Verified: `https://api.hopebed.in/api/payments/payu-webhook`)
 - `[x]` Double-booking safety active
 - `[x]` All core workflows operational
 - `[ ]` Email notifications active

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { env } from '../config/env.js';
 import { User } from '../models/User.js';
 import { createAccessToken, requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
 
 const router = Router();
 const googleClient = new OAuth2Client();
@@ -50,6 +51,11 @@ router.post('/register', async (req, res, next) => {
     const passwordHash = await bcrypt.hash(input.password, 12);
     const user = await User.create({ name: input.name, email: input.email, passwordHash });
     const token = createAccessToken(user.id, user.role);
+
+    // Asynchronously dispatch welcome email (non-blocking)
+    sendWelcomeEmail({ name: user.name, email: user.email }).catch((err) =>
+      console.error('[AuthRoute] Welcome email send error:', err)
+    );
 
     res.status(201).json({ success: true, data: { user: publicUser(user), token } });
   } catch (error) {

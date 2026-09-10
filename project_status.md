@@ -4,7 +4,7 @@
 ## 🎯 Verification & Code Status
 - **TypeScript & Production Build:** Frontend (`/`) and Backend (`backend/`) pass static compilation with **0 errors**. `npm run build` completed with 31/31 static routes generated cleanly.
 - **Concurrency & Overbooking Guard:** MongoDB version tag lock (`$inc: { __v: 1 }`) on `Room` updates ensures zero double-bookings under concurrent traffic.
-- **PayU Gateway & Webhooks:** Server-side price calculation, HMAC-SHA512 signature validation, timing-safe reverse hash verification (`crypto.timingSafeEqual`), duplicate webhook idempotency, and state transition to `CONFIRMED` fully tested via `test_payu_production.ts`.
+- **PayU Gateway & Webhooks (TASK #7):** **COMPLETE** — Verified existing PayU Live Merchant Dashboard webhooks for Successful & Failed payment events point directly to `https://api.hopebed.in/api/payments/payu-webhook` without duplication. Server-side price calculation, HMAC-SHA512 signature validation, timing-safe reverse hash verification (`crypto.timingSafeEqual`), duplicate webhook idempotency, and state transition to `CONFIRMED` fully tested via `test_payu_production.ts`.
 - **Live PayU Credentials:** Configured `PAYU_ENV=production` with live credentials in `backend/.env` (gitignored).
 - **Stay Pass & QR Check-In:** Digital Stay Pass modal with QR code rendering (`qrcode.react`) on `/bookings` and host verification endpoint `/api/hosts/verify-pass` on `/verify`.
 
@@ -34,9 +34,9 @@
 - `[x]` **Duplicate Webhook Idempotency:** Verified 2 identical webhooks result in 1 confirmed booking.
 
 ### Phase 4: Email & Notifications
-- `[ ]` **Customer Notifications:** Email for signup verification, booking confirmation, payment receipt, cancellation, and Stay Pass.
-- `[ ]` **Host Alerts:** Email for new bookings, property approval/rejection, and booking cancellations.
-- `[ ]` **Admin Exceptions:** System alerts for pending property reviews and payment processing exceptions.
+- `[x]` **Customer Notifications:** Automated HTML emails for signup verification, booking confirmation, payment receipt, cancellation, and Stay Pass.
+- `[x]` **Host Alerts:** Automated HTML emails for new guest bookings, property approval/rejection, and booking cancellations.
+- `[x]` **Admin Exceptions:** System alerts for pending property reviews and payment processing exceptions.
 
 ### Phase 5: Stay Pass & QR Check-in Engine
 - `[x]` **Stay Pass Generation:** Automatic digital pass creation upon booking status `CONFIRMED`.

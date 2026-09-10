@@ -6,6 +6,7 @@ import { Host } from '../models/Host.js';
 import { User } from '../models/User.js';
 import { Booking } from '../models/Booking.js';
 import { AuditLog } from '../models/AuditLog.js';
+import { sendPropertyStatusEmail } from '../services/emailService.js';
 
 const router = Router();
 
@@ -83,6 +84,23 @@ router.put('/properties/:id/verify', async (req: AuthenticatedRequest, res, next
       }], { session });
     });
     session.endSession();
+
+    // Populate host user to send notification email
+    const populatedProperty = await Property.findById(property._id).populate<{ host: { user: { name: string; email: string } } }>({
+      path: 'host',
+      populate: { path: 'user', select: 'name email' },
+    });
+
+    const hostUser = (populatedProperty?.host as any)?.user;
+    if (hostUser?.email) {
+      sendPropertyStatusEmail({
+        hostName: hostUser.name || 'Host',
+        hostEmail: hostUser.email,
+        propertyTitle: property.title,
+        status: input.status,
+        rejectionReason: input.reason,
+      }).catch((err) => console.error('[AdminRoute] Property status email error:', err));
+    }
 
     res.json({ success: true, data: { property } });
   } catch (error) {
