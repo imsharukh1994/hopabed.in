@@ -8,6 +8,10 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "vars": {
+    "NEXT_PUBLIC_API_URL": "https://api.hopebed.in",
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "790859697143-rc3tgtgejdhoeoaqi300nbbnbj4sjetq.apps.googleusercontent.com"
+  },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
