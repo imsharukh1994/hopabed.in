@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyAccount, verifyBookingPass } from "@/lib/api";
 import { useAuthModal } from "@/components/AuthProvider";
@@ -11,7 +11,7 @@ interface VerificationResult {
   message: string;
 }
 
-export default function VerifyPage() {
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthModal();
@@ -22,7 +22,7 @@ export default function VerifyPage() {
   // Stay Pass verification state
   const [bookingIdInput, setBookingIdInput] = useState("");
   const [verifyingPass, setVerifyingPass] = useState(false);
-  const [passResult, setPassResult] = useState<{ success: boolean; message: string; booking?: any } | null>(null);
+  const [passResult, setPassResult] = useState<{ success: boolean; message: string; booking?: Record<string, unknown> } | null>(null);
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -30,7 +30,21 @@ export default function VerifyPage() {
 
     if (bookingIdParam) {
       setBookingIdInput(bookingIdParam);
-      handleVerifyStayPass(bookingIdParam);
+      verifyBookingPass(bookingIdParam)
+        .then((bookingData) => {
+          setPassResult({
+            success: true,
+            message: "Stay Pass Verified! Guest checked in successfully.",
+            booking: bookingData as Record<string, unknown>,
+          });
+        })
+        .catch((err: unknown) => {
+          setPassResult({
+            success: false,
+            message: err instanceof Error ? err.message : "Failed to verify Stay Pass. Ensure booking is confirmed & paid.",
+          });
+        })
+        .finally(() => setLoading(false));
       return;
     }
 
@@ -60,12 +74,12 @@ export default function VerifyPage() {
       setPassResult({
         success: true,
         message: "Stay Pass Verified! Guest checked in successfully.",
-        booking: bookingData,
+        booking: bookingData as Record<string, unknown>,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setPassResult({
         success: false,
-        message: err.message || "Failed to verify Stay Pass. Ensure booking is confirmed & paid.",
+        message: err instanceof Error ? err.message : "Failed to verify Stay Pass. Ensure booking is confirmed & paid.",
       });
     } finally {
       setVerifyingPass(false);
@@ -125,9 +139,9 @@ export default function VerifyPage() {
               <p className="font-semibold">{passResult.message}</p>
               {passResult.booking && (
                 <div className="mt-3 space-y-1 text-xs text-green-900 border-t border-green-200 pt-2">
-                  <p><strong>Booking ID:</strong> {passResult.booking._id || passResult.booking.id}</p>
-                  <p><strong>Status:</strong> {passResult.booking.status}</p>
-                  <p><strong>Payment Status:</strong> {passResult.booking.paymentStatus}</p>
+                  <p><strong>Booking ID:</strong> {String(passResult.booking._id || passResult.booking.id || "")}</p>
+                  <p><strong>Status:</strong> {String(passResult.booking.status || "")}</p>
+                  <p><strong>Payment Status:</strong> {String(passResult.booking.paymentStatus || "")}</p>
                 </div>
               )}
             </div>
@@ -177,5 +191,20 @@ export default function VerifyPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-brand" />
+          <p className="mt-4 text-muted font-medium">Loading verification...</p>
+        </div>
+      }
+    >
+      <VerifyContent />
+    </Suspense>
   );
 }
