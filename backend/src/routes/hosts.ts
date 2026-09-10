@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { Host } from '../models/Host.js';
+import { User } from '../models/User.js';
 import { requireAuth, requireRole, type AuthenticatedRequest } from '../middleware/auth.js';
 import { Property } from '../models/Property.js';
 import { Room } from '../models/Room.js';

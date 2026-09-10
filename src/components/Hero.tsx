@@ -1,8 +1,7 @@
 import Image from "next/image";
 import { SearchBar } from "./SearchBar";
 
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=2000&q=80";
+const HERO_IMAGE = "/hero-bg.png";
 
 export function Hero() {
   return (
@@ -13,7 +12,7 @@ export function Hero() {
           alt="Premium stay with mountain views"
           fill
           priority
-          className="object-cover"
+          className="object-cover blur-[2px] scale-[1.02]"
           sizes="100vw"
         />
         {/* Lighter, premium gradient overlay */}

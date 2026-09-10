@@ -205,7 +205,7 @@ router.post('/payu-verify', requireAuth, async (req: AuthenticatedRequest, res, 
       body: verifyForm.toString()
     });
 
-    const body = await response.json();
+    const body = (await response.json()) as any;
     
     if (body.status === 1 && body.transaction_details && body.transaction_details[txnid || '']) {
       const txDetails = body.transaction_details[txnid || ''];
@@ -279,7 +279,7 @@ router.post('/payu-refund', requireAuth, async (req: AuthenticatedRequest, res, 
       body: params.toString()
     });
 
-    const body = await response.json();
+    const body = (await response.json()) as any;
     if (body.status === 1) {
       payment.status = 'refunded';
       payment.metadata = { ...payment.metadata, refundResponse: body };
