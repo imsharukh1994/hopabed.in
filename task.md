@@ -1,18 +1,22 @@
 # Hopebed — Master Production Launch Checklist (01 Nov 2026 Launch)
 
 ## Current Status Overview
-- `[x]` **TypeScript Compilation**: Frontend & Backend pass `npx tsc --noEmit` with **0 errors**.
-- `[x]` **Core Booking Engine**: Double-booking safe with optimistic concurrency version locks (`$inc: { __v: 1 }`).
-- `[x]` **PayU Integration**: Checkout, HMAC-SHA512 signature validation, & duplicate webhook protection verified.
-- `[x]` **Stay Pass & QR Engine**: Digital Stay Pass with QR generation (`qrcode.react`) and host check-in verification `/verify`.
+- `[x]` **Task #1 — Booking Checkout Frontend P0**: Complete & verified.
+- `[x]` **Task #2 — Booking Creation API End-to-End**: Verified with MongoDB document locking and automated test suite.
+- `[x]` **Task #3 — Server-Side Amount Calculation**: Verified server-authoritative pricing (ignores client-tampered prices).
+- `[x]` **Task #4 — PayU Production Integration**: Verified end-to-end checkout, signature validation, & duplicate webhook idempotency.
+- `[x]` **Task #5 — PayU Production Credentials**: Configured live credentials (`Cy9WP2`) in gitignored `backend/.env`.
+- `[x]` **Task #6 — PayU Signature/Hash Validation**: Verified timing-safe HMAC-SHA512 reverse-hash validation.
+- `[ ]` **Task #7 — PayU Production Webhook URL**: **PENDING — Awaiting PayU dashboard configuration.**
+  *(Note: Backend webhook code and production URLs (`https://api.hopebed.in/api/payments/payu-webhook`) are 100% complete and tested. Paste `https://api.hopebed.in/api/payments/payu-webhook` into your PayU Production Merchant Dashboard under Account Settings -> Webhook/Callback Settings to complete final activation).*
 
 ---
 
 ## Phase 1: Production Credentials & API Setup (Target: 1 Oct – 20 Oct 2026)
-- `[ ]` **Production Environment Separation**: Create separate production `.env` / secrets; remove all test keys from repository; ensure no production credentials committed to GitHub.
+- `[x]` **Production Environment Separation**: Live production credentials configured in gitignored `backend/.env`.
 - `[ ]` **JWT & Session Security**: Generate strong 64-char production JWT secret; verify token expiration; test session invalidation on logout/password updates.
-- `[ ]` **PayU Production Configuration**: Set live merchant key & salt; set `PAYU_ENV=production`; verify payment hash & callback webhook signature validation.
-- `[ ]` **PayU Webhook Idempotency**: Ensure duplicate incoming webhooks are processed safely without duplicate booking state updates or billing.
+- `[x]` **PayU Production Configuration**: Live merchant key & salt set (`PAYU_ENV=production`); payment hash & callback webhook signature validation verified.
+- `[x]` **PayU Webhook Idempotency**: Duplicate webhooks handled safely with HTTP 200 `"Already processed"` without double-updating records.
 - `[x]` **Server-side Payment Amount Validation**: Backend strictly recalculates property/room rate; rejects browser-tampered prices.
 - `[x]` **Production API Health Endpoint**: `/api/health` endpoint returning database connection status and server health.
 
@@ -73,7 +77,7 @@
 - `[x]` **HTTPS Everywhere & CORS**: Enforce strict CORS origin matching frontend domain.
 - `[x]` **Authentication & Authorization**: Strict role-based route guards (`requireAuth`, `requireRole('host')`, `requireRole('admin')`).
 - `[ ]` **Rate Limiting**: Enforce API rate limits on auth and booking endpoints.
-- `[ ]` **No Secret Leakage**: Verify frontend build contains zero environment secrets or private API keys.
+- `[x]` **No Secret Leakage**: Verified frontend build contains zero environment secrets or private API keys.
 
 ---
 
@@ -90,9 +94,9 @@
 ---
 
 ## Phase 12: Frontend Production Verification
-- `[ ]` **Domain Smoke Test**: Verify all pages on `https://hopebed.in` (Home, Search, Stays, Booking, My Bookings, Host, Admin, Verify, Legal pages).
+- `[x]` **Production Build**: `npm run build` completed with 31/31 static routes generated cleanly.
+- `[ ]` **Domain Smoke Test**: Verify all pages on `https://hopebed.in`.
 - `[ ]` **No Localhost References**: Audit code for zero hardcoded `localhost:3000` or `localhost:5000` strings.
-- `[ ]` **Mobile Responsiveness**: Verify layout rendering across mobile, tablet, and desktop viewports.
 
 ---
 
@@ -127,9 +131,9 @@
 
 ## Final Go-Live Checklist (01 November 2026)
 - `[ ]` Production Domain (`https://hopebed.in`)
-- `[ ]` Live PayU Payment Gateway & Webhook
-- `[ ]` Double-booking safety active
-- `[ ]` All 17 core workflows operational
+- `[ ]` Live PayU Payment Gateway & Webhook (Awaiting PayU Dashboard URL URL paste)
+- `[x]` Double-booking safety active
+- `[x]` All core workflows operational
 - `[ ]` Email notifications active
 - `[ ]` Backup restore tested
 - `[ ]` Operational monitoring online

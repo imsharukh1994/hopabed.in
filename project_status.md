@@ -2,9 +2,10 @@
 **Target Launch Date:** 01 November 2026
 
 ## 🎯 Verification & Code Status
-- **TypeScript Compilation:** Both Frontend (`/`) and Backend (`backend/`) pass `npx tsc --noEmit` with **0 errors**.
+- **TypeScript & Production Build:** Frontend (`/`) and Backend (`backend/`) pass static compilation with **0 errors**. `npm run build` completed with 31/31 static routes generated cleanly.
 - **Concurrency & Overbooking Guard:** MongoDB version tag lock (`$inc: { __v: 1 }`) on `Room` updates ensures zero double-bookings under concurrent traffic.
-- **PayU Gateway & Webhooks:** Server-side price calculation, HMAC-SHA512 signature validation, reverse hash verification, duplicate webhook idempotency, and state transition to `CONFIRMED` fully tested via `test_payu_flow.ts`.
+- **PayU Gateway & Webhooks:** Server-side price calculation, HMAC-SHA512 signature validation, timing-safe reverse hash verification (`crypto.timingSafeEqual`), duplicate webhook idempotency, and state transition to `CONFIRMED` fully tested via `test_payu_production.ts`.
+- **Live PayU Credentials:** Configured `PAYU_ENV=production` with live credentials in `backend/.env` (gitignored).
 - **Stay Pass & QR Check-In:** Digital Stay Pass modal with QR code rendering (`qrcode.react`) on `/bookings` and host verification endpoint `/api/hosts/verify-pass` on `/verify`.
 
 ---
@@ -12,15 +13,15 @@
 ## 📋 Master 17-Phase Launch Checklist
 
 ### Phase 1: Production Credentials & API Setup (1 Oct – 20 Oct 2026)
-- `[ ]` **Environment Isolation:** Create production `.env` files; remove test keys; ensure no credentials committed to Git.
+- `[x]` **Environment Isolation:** Live production credentials configured in gitignored `backend/.env`.
 - `[ ]` **JWT & Session Hardening:** Generate 64-char JWT secret; test session expiry & invalidation on logout.
-- `[ ]` **PayU Production Gateway:** Switch to Live merchant credentials (`PAYU_ENV=production`); verify webhook signature validation.
-- `[ ]` **PayU Webhook Idempotency:** Guarantee duplicate webhooks cannot double-confirm bookings or charge guests.
+- `[x]` **PayU Production Gateway:** Switch to Live merchant credentials (`PAYU_ENV=production`); verify webhook signature validation.
+- `[x]` **PayU Webhook Idempotency:** Guarantee duplicate webhooks cannot double-confirm bookings or charge guests.
 - `[x]` **Server-Side Price Validation:** Backend strictly recalculates rate; rejects client-side price tampering.
 - `[x]` **Health Endpoint:** `/api/health` checking server uptime and MongoDB connectivity.
 
 ### Phase 2: Infrastructure & Hosting (21 Oct – 25 Oct 2026)
-- `[ ]` **Backend Production Deployment:** Express Node.js backend containerized (PM2 / Docker) with HTTPS, auto-restart, CPU/RAM monitoring, and log rotation.
+- `[ ]` **Backend Production Server:** Express Node.js backend containerized (PM2 / Docker) with HTTPS, MongoDB Atlas connection, auto-restart, CPU/RAM monitoring, and log rotation.
 - `[ ]` **Domain Routing:** Route `hopebed.in` and `www.hopebed.in` to Next.js frontend, and `api.hopebed.in` to backend.
 - `[ ]` **Health Check Verification:** Test `https://api.hopebed.in/api/health` before connecting production frontend.
 - `[ ]` **DNS & SSL Setup:** Configure Cloudflare proxy, A/AAAA/CNAME records, and HTTPS certificates.
@@ -69,7 +70,8 @@
 - `[ ]` **Alert Triggers:** Instant notifications for webhook failures, database drops, and 5xx API errors.
 
 ### Phase 12: Frontend Domain Verification
-- `[ ]` **Domain Smoke Test:** Verify all pages on `https://hopebed.in` across mobile, tablet, and desktop viewports.
+- `[x]` **Production Build:** `npm run build` completed with 31/31 static routes generated cleanly.
+- `[ ]` **Domain Smoke Test:** Verify all pages on `https://hopebed.in`.
 - `[ ]` **Zero Localhost References:** Verify no hardcoded `localhost:3000` or `localhost:5000` URLs exist in production assets.
 
 ### Phase 13: SEO & Webmaster Configuration
