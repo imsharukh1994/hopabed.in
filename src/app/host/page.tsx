@@ -63,7 +63,10 @@ export default function HostDashboardPage() {
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     if (user.role !== "host") {
       setLoading(false);

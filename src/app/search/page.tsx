@@ -45,7 +45,11 @@ function PropertyResult({ property }: { property: SearchProperty }) {
   return <article className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm hover:shadow-lg">
     <Link href={`/stay/${property.id}`} className="relative block h-52 bg-mint">
       {property.primaryImage ? <Image src={property.primaryImage} alt={property.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" /> : <div className="flex h-full items-center justify-center text-brand"><MapPin className="h-8 w-8" /></div>}
-      <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-brand"><CheckCircle2 className="h-3.5 w-3.5" /> Verified</span>
+      {property.isVerified ? (
+        <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-emerald-600/95 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+          <CheckCircle2 className="h-3.5 w-3.5" /> Verified
+        </span>
+      ) : null}
     </Link>
     <div className="p-4"><div className="flex items-start justify-between gap-2"><div><h2 className="font-semibold text-ink-soft">{property.title}</h2><p className="mt-1 flex items-center gap-1 text-sm text-muted"><MapPin className="h-3.5 w-3.5" />{property.locality}, {property.city}</p></div>{property.rating ? <span className="flex items-center gap-1 text-sm"><Star className="h-3.5 w-3.5 fill-brand text-brand" />{property.rating.toFixed(1)}</span> : null}</div><p className="mt-4 text-lg font-bold text-ink-soft">₹{property.pricePerNight.toLocaleString("en-IN")}<span className="text-xs font-normal text-muted"> / night</span></p></div>
   </article>;

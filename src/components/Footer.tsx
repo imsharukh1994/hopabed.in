@@ -55,18 +55,10 @@ export function Footer() {
         <FooterColumn title="Support" links={SUPPORT} />
         <FooterColumn title="For Hosts" links={HOSTS} />
         <div>
-          <h3 className="mb-4 text-sm font-semibold">Download the app</h3>
-          <Link
-            href="/app"
-            className="inline-flex w-fit items-center gap-2.5 rounded-lg bg-black px-3 py-2 text-white ring-1 ring-white/25"
-            aria-label="Get it on Google Play"
-          >
-            <GooglePlayLogo />
-            <span className="leading-tight">
-              <span className="block text-[9px] uppercase tracking-wide text-white/70">Get it on</span>
-              <span className="text-sm font-semibold">Google Play</span>
-            </span>
-          </Link>
+          <h3 className="mb-4 text-sm font-semibold">Mobile App</h3>
+          <div className="inline-flex w-fit items-center gap-2 rounded-lg bg-black px-3.5 py-2 text-white/80 ring-1 ring-white/25 text-xs font-medium">
+            <span>Mobile App Coming Soon</span>
+          </div>
         </div>
       </div>
       <div className="border-t border-white/10">

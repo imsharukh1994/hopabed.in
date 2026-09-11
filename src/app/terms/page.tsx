@@ -1,17 +1,44 @@
-export default function Page() {
+export default function TermsPage() {
   return (
-    <div className="container-page py-20 max-w-3xl">
-      <h1 className="mb-8 text-4xl font-bold">Terms of Service</h1>
-      <div className="prose prose-slate">
-        <p>Last updated: {new Date().toLocaleDateString()}</p>
-        <h2>1. Acceptance of Terms</h2>
-        <p>By accessing and using Hopebed, you accept and agree to be bound by the terms and provision of this agreement.</p>
-        <h2>2. Use License</h2>
-        <p>Permission is granted to temporarily download one copy of the materials (information or software) on Hopebed&apos;s website for personal, non-commercial transitory viewing only.</p>
-        <h2>3. Booking and Payments</h2>
-        <p>All bookings made through Hopebed are subject to availability and acceptance by the Host. Payments are processed securely via our third-party payment providers.</p>
-        <h2>4. User Accounts</h2>
-        <p>To use certain features of the platform, you must register for an account. You agree to provide accurate, current, and complete information during the registration process.</p>
+    <div className="container-page max-w-4xl py-16">
+      <h1 className="mb-4 text-4xl font-bold text-ink-soft">Terms of Service</h1>
+      <p className="mb-8 text-sm text-muted">Last updated: {new Date().toLocaleDateString("en-IN")}</p>
+
+      <div className="prose prose-slate space-y-8 text-ink-soft">
+        <section>
+          <h2 className="text-xl font-bold text-ink-soft">1. Acceptance of Terms</h2>
+          <p className="mt-2 leading-relaxed text-muted">
+            By accessing or using the Hopebed platform (&ldquo;Hopebed&rdquo;), whether as a guest or property owner/host, you agree to be bound by these Terms of Service. If you do not agree, you must discontinue platform usage.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-ink-soft">2. Guest Bookings & Payments</h2>
+          <p className="mt-2 leading-relaxed text-muted">
+            Bookings are subject to room availability. Payments are processed securely via PayU payment gateway. Upon successful payment verification, a digital QR Stay Pass is issued to the guest for check-in.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-ink-soft">3. Host Obligations & Verification</h2>
+          <p className="mt-2 leading-relaxed text-muted">
+            Property owners and operators listing Hotels, PGs, Hostels, Villas, or Homestays must provide accurate property information and undergo identity (Aadhaar/PAN) and property document verification. Only verified listings approved by Hopebed compliance administrators receive the &ldquo;Verified Property&rdquo; status and become eligible for public booking.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-ink-soft">4. Cancellations & Refunds</h2>
+          <p className="mt-2 leading-relaxed text-muted">
+            Cancellations are governed by the property policy specified during booking. Eligible refunds are dispatched back to the original payment source in accordance with standard payment gateway operating timelines.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-ink-soft">5. Marketplace Responsibilities</h2>
+          <p className="mt-2 leading-relaxed text-muted">
+            Hopebed serves as a technology marketplace connecting guests with verified stay providers. Hosts maintain operational responsibility for on-premises safety, room maintenance, and local regulations compliance.
+          </p>
+        </section>
       </div>
     </div>
   );
