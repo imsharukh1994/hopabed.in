@@ -92,7 +92,7 @@ export default function Header() {
               </div>
             ) : (
               <button
-                onClick={openAuth}
+                onClick={() => openAuth()}
                 className="hidden shrink-0 items-center gap-2 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-dark lg:flex"
               >
                 Login / Sign Up

@@ -6,8 +6,10 @@ import { env } from '../config/env.js';
 import { User } from '../models/User.js';
 import { createAccessToken, requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 import { sendWelcomeEmail } from '../services/emailService.js';
+import otpAuthRouter from './otpAuth.js';
 
 const router = Router();
+router.use('/', otpAuthRouter);
 const googleClient = new OAuth2Client();
 
 const credentialsSchema = z.object({

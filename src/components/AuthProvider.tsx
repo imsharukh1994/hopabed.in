@@ -7,7 +7,8 @@ export type AuthUser = { id: string; name: string; email: string; role: string; 
 
 type AuthContextValue = {
   isOpen: boolean;
-  openAuth: () => void;
+  isOwnerFlow: boolean;
+  openAuth: (options?: { isOwnerFlow?: boolean }) => void;
   closeAuth: () => void;
   user: AuthUser | null;
   setSession: (token: string, user: AuthUser) => void;
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isOwnerFlow, setIsOwnerFlow] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
@@ -31,8 +33,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       isOpen,
-      openAuth: () => setIsOpen(true),
-      closeAuth: () => setIsOpen(false),
+      isOwnerFlow,
+      openAuth: (options?: { isOwnerFlow?: boolean }) => {
+        const isOwner = Boolean(options && typeof options === "object" && "isOwnerFlow" in options && options.isOwnerFlow);
+        setIsOwnerFlow(isOwner);
+        setIsOpen(true);
+      },
+      closeAuth: () => {
+        setIsOpen(false);
+        setIsOwnerFlow(false);
+      },
       user,
       setSession: (token: string, authenticatedUser: AuthUser) => {
         localStorage.setItem("hopebed_access_token", token);
@@ -43,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
       },
     }),
-    [isOpen, user],
+    [isOpen, isOwnerFlow, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

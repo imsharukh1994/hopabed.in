@@ -67,6 +67,50 @@ export async function authenticateWithPassword(input: {
 	return body;
 }
 
+export async function sendOtp(input: {
+	identifierType: "email" | "mobile";
+	identifier: string;
+}): Promise<{ message: string; resendCooldownSeconds: number }> {
+	let response: Response;
+	try {
+		response = await fetch(`${API_BASE_URL}/api/auth/otp/send`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(input),
+		});
+	} catch {
+		throw new Error("Hopebed API is not running. Start the backend on port 4000.");
+	}
+	const body = (await response.json()) as { data?: { message: string; resendCooldownSeconds: number }; error?: { message?: string } };
+	if (!response.ok || !body.data) {
+		throw new Error(body.error?.message ?? "Failed to send verification code.");
+	}
+	return body.data;
+}
+
+export async function verifyOtp(input: {
+	identifierType: "email" | "mobile";
+	identifier: string;
+	otp: string;
+	isOwnerFlow?: boolean;
+}): Promise<AuthResponse & { data: AuthResponse["data"] & { firstPropertyId?: string } }> {
+	let response: Response;
+	try {
+		response = await fetch(`${API_BASE_URL}/api/auth/otp/verify`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(input),
+		});
+	} catch {
+		throw new Error("Hopebed API is not running. Start the backend on port 4000.");
+	}
+	const body = (await response.json()) as (AuthResponse & { data: AuthResponse["data"] & { firstPropertyId?: string } }) | { error?: { message?: string } };
+	if (!response.ok || !("data" in body)) {
+		throw new Error("error" in body ? body.error?.message ?? "Invalid OTP." : "OTP verification failed.");
+	}
+	return body;
+}
+
 export async function getCurrentUser(token: string): Promise<AuthResponse["data"]["user"]> {
 	const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
 		headers: { Authorization: `Bearer ${token}` },

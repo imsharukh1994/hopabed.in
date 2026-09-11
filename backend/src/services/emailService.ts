@@ -318,3 +318,23 @@ export async function sendAdminPropertyReviewAlert(data: {
   );
   return sendEmail({ to: data.adminEmail, subject, html });
 }
+
+// 8. Email OTP Verification Code
+export async function sendOtpEmail(data: { email: string; otp: string }) {
+  const subject = `Your Hopebed Verification Code: ${data.otp}`;
+  const html = buildEmailTemplate(
+    'Hopebed Verification Code',
+    `
+    <h2 style="color:#0f172a; margin-top:0;">Your Verification Code</h2>
+    <p>Use the following 6-digit code to complete your login or registration on Hopebed:</p>
+    
+    <div className="card" style="background-color:#f8fafc; border:1px border-brand; border-radius:12px; padding:24px; text-align:center; margin:24px 0;">
+      <span style="font-size:36px; font-weight:800; letter-spacing:8px; color:#0d9488; font-family:monospace;">${data.otp}</span>
+    </div>
+
+    <p style="font-size:13px; color:#64748b;">This code expires in <strong>5 minutes</strong>. If you did not request this verification code, please ignore this email.</p>
+    `
+  );
+  return sendEmail({ to: data.email, subject, html });
+}
+

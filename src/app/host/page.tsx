@@ -33,7 +33,7 @@ interface OwnerVerificationData {
 }
 
 export default function HostDashboardPage() {
-  const { user } = useAuthModal();
+  const { user, openAuth } = useAuthModal();
   const [properties, setProperties] = useState<HostProperty[]>([]);
   const [stats, setStats] = useState<HostStats | null>(null);
   const [verifStatus, setVerifStatus] = useState<OwnerVerificationData | null>(null);
@@ -96,7 +96,13 @@ export default function HostDashboardPage() {
         )}
 
         <button
-          onClick={handleRegister}
+          onClick={() => {
+            if (!user) {
+              openAuth({ isOwnerFlow: true });
+            } else {
+              handleRegister();
+            }
+          }}
           disabled={registering}
           className="inline-flex items-center gap-2 rounded-xl bg-brand px-8 py-3 font-semibold text-white transition hover:bg-brand-dark disabled:opacity-70"
         >
