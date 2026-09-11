@@ -72,7 +72,7 @@ export default function HostDashboardPage() {
       .then(([props, stats, verif]) => {
         setProperties(props as unknown as HostProperty[]);
         setStats(stats as HostStats);
-        setVerifStatus(verif as OwnerVerificationData);
+        setVerifStatus((verif as unknown) as OwnerVerificationData);
       })
       .finally(() => setLoading(false));
   }, [user]);
