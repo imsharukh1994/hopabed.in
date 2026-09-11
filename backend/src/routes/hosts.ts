@@ -31,51 +31,42 @@ router.post('/register', requireAuth, async (req: AuthenticatedRequest, res, nex
 
     const input = hostRegistrationSchema.parse(req.body);
 
-    const session = await Host.startSession();
-    let firstProperty;
+    host = await Host.create({
+      user: userId,
+      businessName: input.businessName,
+      bio: input.bio,
+      verificationStatus: 'unverified',
+      kycStatus: 'not_started',
+    });
+    await User.findByIdAndUpdate(userId, { role: 'host' });
 
-    await session.withTransaction(async () => {
-      [host] = await Host.create(
-        [{ user: userId, businessName: input.businessName, bio: input.bio, verificationStatus: 'unverified', kycStatus: 'not_started' }],
-        { session }
-      );
-      await User.findByIdAndUpdate(userId, { role: 'host' }, { session });
+    const defaultTitle = input.businessName ? `${input.businessName}` : 'My First Property';
+    const slug = defaultTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
 
-      const defaultTitle = input.businessName ? `${input.businessName}` : 'My First Property';
-      const slug = defaultTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
-
-      [firstProperty] = await Property.create(
-        [
-          {
-            host: host._id,
-            title: defaultTitle,
-            slug,
-            propertyType: 'hotel',
-            category: 'stay',
-            city: 'Navi Mumbai',
-            locality: 'Kharghar',
-            state: 'Maharashtra',
-            country: 'India',
-            address: 'Address to be updated',
-            bedrooms: 1,
-            bathrooms: 1,
-            maxGuests: 2,
-            pricePerNight: 2000,
-            currency: 'INR',
-            description: 'Welcome to your property draft on Hopebed. Complete property details, pricing, rooms, and verification to go live.',
-            amenities: ['WiFi', 'AC'],
-            isVerified: false,
-            isPublished: false,
-            verificationStatus: 'DRAFT',
-          },
-        ],
-        { session }
-      );
-
-      await Host.findByIdAndUpdate(host._id, { propertyCount: 1 }, { session });
+    const firstProperty = await Property.create({
+      host: host._id,
+      title: defaultTitle,
+      slug,
+      propertyType: 'hotel',
+      category: 'stay',
+      city: 'Navi Mumbai',
+      locality: 'Kharghar',
+      state: 'Maharashtra',
+      country: 'India',
+      address: 'Address to be updated',
+      bedrooms: 1,
+      bathrooms: 1,
+      maxGuests: 2,
+      pricePerNight: 2000,
+      currency: 'INR',
+      description: 'Welcome to your property draft on Hopebed. Complete property details, pricing, rooms, and verification to go live.',
+      amenities: ['WiFi', 'AC'],
+      isVerified: false,
+      isPublished: false,
+      verificationStatus: 'DRAFT',
     });
 
-    session.endSession();
+    await Host.findByIdAndUpdate(host._id, { propertyCount: 1 });
 
     res.status(201).json({ success: true, data: { host, firstProperty } });
   } catch (error) {
@@ -97,15 +88,12 @@ router.post('/auto-draft', requireAuth, async (req: AuthenticatedRequest, res, n
 
     let host = await Host.findOne({ user: userId });
     if (!host) {
-      const session = await Host.startSession();
-      await session.withTransaction(async () => {
-        [host] = await Host.create(
-          [{ user: userId, verificationStatus: 'unverified', kycStatus: 'not_started' }],
-          { session }
-        );
-        await User.findByIdAndUpdate(userId, { role: 'host' }, { session });
+      host = await Host.create({
+        user: userId,
+        verificationStatus: 'unverified',
+        kycStatus: 'not_started',
       });
-      session.endSession();
+      await User.findByIdAndUpdate(userId, { role: 'host' });
     }
 
     // Check if host already has properties

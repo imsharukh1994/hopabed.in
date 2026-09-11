@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Plus, ShieldCheck, CheckCircle2, AlertCircle, Clock, ShieldAlert } from "lucide-react";
 import { useAuthModal } from "@/components/AuthProvider";
-import { getHostProperties, getHostStats, registerHost, getOwnerVerificationStatus } from "@/lib/api";
+import { getHostProperties, getHostStats, getOwnerVerificationStatus, createAutoDraftProperty } from "@/lib/api";
 
 interface HostProperty {
   _id: string;
@@ -41,13 +41,13 @@ export default function HostDashboardPage() {
   const [registering, setRegistering] = useState(false);
   const [registerError, setRegisterError] = useState("");
 
-  const router = useRouter();
   const handleRegister = async () => {
     setRegistering(true);
     setRegisterError("");
     try {
       const res = await createAutoDraftProperty();
-      const propId = (res.property as any)?._id || (res.property as any)?.id;
+      const propObj = res.property as { _id?: string; id?: string } | undefined;
+      const propId = propObj?._id || propObj?.id;
       if (propId) {
         window.location.href = `/host/properties/${propId}/verification`;
       } else {
