@@ -152,7 +152,7 @@ router.post('/payu-webhook', async (req, res, next) => {
     }
 
     // Atomic idempotency guard: only transition if status is not already in a terminal state
-    const targetStatus = status === 'success' ? 'captured' : 'failed';
+    const targetStatus = status === 'success' ? 'captured' : (status === 'pending' ? 'pending' : 'failed');
     const updatedPayment = await Payment.findOneAndUpdate(
       {
         _id: payment._id,
