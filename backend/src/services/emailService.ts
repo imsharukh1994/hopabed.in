@@ -38,12 +38,10 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       return { success: true, messageId: info.messageId };
     } else {
       // Mock / Dev Console Mode when SMTP is not configured
-      console.log(`[EmailService DEV/LOG MODE] ---------------------------------`);
-      console.log(`To: ${options.to}`);
-      console.log(`From: ${from}`);
+      console.log(`\n===========================================================`);
+      console.log(`🔑 [EMAIL DEV MOCK OTP] To: ${options.to}`);
       console.log(`Subject: ${options.subject}`);
-      console.log(`Body Length: ${options.html.length} chars`);
-      console.log(`-----------------------------------------------------------------`);
+      console.log(`===========================================================\n`);
       return { success: true, messageId: `mock-${Date.now()}` };
     }
   } catch (error: any) {

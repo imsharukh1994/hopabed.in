@@ -112,11 +112,9 @@ export async function sendSmsOTP(options: SendSmsOptions): Promise<{ success: bo
       return { success: true };
     }
 
-    console.log(`[SmsService DEV/MOCK MODE] ------------------------------`);
-    console.log(`To: ${normalizedTo}`);
-    console.log(`Provider: ${smsProvider}`);
-    console.log(`Message: Your Hopebed verification code is [PROTECTED]`);
-    console.log(`-----------------------------------------------------------`);
+    console.log(`\n===========================================================`);
+    console.log(`🔑 [SMS DEV MOCK OTP] Verification code for ${normalizedTo}: ${options.otp}`);
+    console.log(`===========================================================\n`);
     return { success: true };
   } catch (error: any) {
     if (error.message === 'INVALID_PHONE_FORMAT') {
