@@ -41,12 +41,18 @@ export default function HostDashboardPage() {
   const [registering, setRegistering] = useState(false);
   const [registerError, setRegisterError] = useState("");
 
+  const router = useRouter();
   const handleRegister = async () => {
     setRegistering(true);
     setRegisterError("");
     try {
-      await registerHost({});
-      window.location.reload();
+      const res = await createAutoDraftProperty();
+      const propId = (res.property as any)?._id || (res.property as any)?.id;
+      if (propId) {
+        window.location.href = `/host/properties/${propId}/verification`;
+      } else {
+        window.location.reload();
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setRegisterError(err.message || "Failed to register as host.");

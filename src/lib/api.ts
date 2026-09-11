@@ -131,6 +131,18 @@ export async function registerHost(input: { businessName?: string; bio?: string 
 	return { host: body.data.host, user };
 }
 
+export async function createAutoDraftProperty() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/auto-draft`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+	});
+	const body = (await response.json()) as { data?: { host: Record<string, unknown>; property: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to create property draft.");
+	return body.data;
+}
+
 export async function getHostProperties() {
 	const token = localStorage.getItem("hopebed_access_token");
 	if (!token) throw new Error("Please log in.");
