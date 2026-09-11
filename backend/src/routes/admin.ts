@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { Types } from 'mongoose';
 import { requireAuth, requireRole, type AuthenticatedRequest } from '../middleware/auth.js';
 import { Property } from '../models/Property.js';
 import { Host } from '../models/Host.js';

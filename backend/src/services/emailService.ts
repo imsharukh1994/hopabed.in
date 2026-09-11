@@ -255,12 +255,15 @@ export async function sendPropertyStatusEmail(data: {
   hostName: string;
   hostEmail: string;
   propertyTitle: string;
-  status: 'VERIFIED' | 'REJECTED';
+  status: 'VERIFIED' | 'REJECTED' | 'CHANGES_REQUESTED';
   rejectionReason?: string;
 }) {
   const isApproved = data.status === 'VERIFIED';
+  const isChangesRequested = data.status === 'CHANGES_REQUESTED';
   const subject = isApproved
     ? `Congratulations! Property Verified — ${data.propertyTitle}`
+    : isChangesRequested
+    ? `Revision Requested — ${data.propertyTitle}`
     : `Property Verification Update — ${data.propertyTitle}`;
 
   const html = buildEmailTemplate(

@@ -175,7 +175,7 @@ router.post('/owner/pan', async (req: AuthenticatedRequest, res, next) => {
 router.post('/property/:propertyId/operator-mode', async (req: AuthenticatedRequest, res, next) => {
   try {
     const userId = req.auth?.userId;
-    const { propertyId } = req.params;
+    const propertyId = Array.isArray(req.params.propertyId) ? req.params.propertyId[0] : req.params.propertyId;
 
     const host = await Host.findOne({ user: userId });
     if (!host) {
@@ -228,7 +228,7 @@ router.post('/property/:propertyId/operator-mode', async (req: AuthenticatedRequ
 router.post('/property/:propertyId/documents', async (req: AuthenticatedRequest, res, next) => {
   try {
     const userId = req.auth?.userId;
-    const { propertyId } = req.params;
+    const propertyId = Array.isArray(req.params.propertyId) ? req.params.propertyId[0] : req.params.propertyId;
 
     const host = await Host.findOne({ user: userId });
     if (!host) {
@@ -306,7 +306,7 @@ router.get('/property/:propertyId/documents', async (req: AuthenticatedRequest, 
   try {
     const userId = req.auth?.userId;
     const role = req.auth?.role;
-    const { propertyId } = req.params;
+    const propertyId = Array.isArray(req.params.propertyId) ? req.params.propertyId[0] : req.params.propertyId;
 
     if (role !== 'admin') {
       const host = await Host.findOne({ user: userId });
@@ -417,7 +417,7 @@ router.get('/documents/:docId/stream', async (req: AuthenticatedRequest, res, ne
 router.post('/property/:propertyId/submit', async (req: AuthenticatedRequest, res, next) => {
   try {
     const userId = req.auth?.userId;
-    const { propertyId } = req.params;
+    const propertyId = Array.isArray(req.params.propertyId) ? req.params.propertyId[0] : req.params.propertyId;
 
     const host = await Host.findOne({ user: userId });
     if (!host) {

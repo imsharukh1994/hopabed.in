@@ -63,7 +63,7 @@ const propertySchema = new Schema<IProperty>(
         'homestay',
         'guesthouse',
         'apartment',
-        | 'villa',
+        'villa',
         'studio',
         'house',
         'farmstay',
