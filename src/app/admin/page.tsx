@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
   const [changeReason, setChangeReason] = useState("");
   const [changeError, setChangeError] = useState("");
 
-  const loadData = async (status = filterStatus) => {
+  const loadData = useCallback(async (status = filterStatus) => {
     setLoading(true);
     try {
       const [statsRes, queueRes] = await Promise.all([
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterStatus]);
 
   useEffect(() => {
     if (user?.role === "admin") {
@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
     } else {
       setLoading(false);
     }
-  }, [user, filterStatus]);
+  }, [user, filterStatus, loadData]);
 
   if (!user || user.role !== "admin") {
     return (
@@ -133,8 +133,8 @@ export default function AdminDashboardPage() {
       setShowChangeModal(false);
       setChangeReason("");
       await loadData();
-    } catch (err: any) {
-      alert(err.message || "Failed to process review action.");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to process review action.");
     } finally {
       setReviewing(false);
     }

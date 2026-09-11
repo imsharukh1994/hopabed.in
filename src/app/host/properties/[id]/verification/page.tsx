@@ -1,8 +1,7 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuthModal } from "@/components/AuthProvider";
 import {
   getOwnerVerificationStatus,
@@ -50,9 +49,18 @@ interface OwnerStatus {
   verificationStatus: string;
 }
 
+interface PropertyVerificationRes {
+  documents: DocumentItem[];
+  propertyVerification?: {
+    isOwner?: boolean;
+    operatorRole?: string;
+    status?: string;
+    rejectionReason?: string;
+  };
+}
+
 export default function PropertyVerificationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: propertyId } = use(params);
-  const router = useRouter();
   const { user } = useAuthModal();
 
   const [loading, setLoading] = useState(true);
@@ -75,7 +83,6 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
   // Operator declaration state
   const [isOwner, setIsOwner] = useState<boolean>(true);
   const [operatorRole, setOperatorRole] = useState<string>("owner");
-  const [savingOperatorMode, setSavingOperatorMode] = useState(false);
 
   // Document upload states
   const [uploadingType, setUploadingType] = useState<string | null>(null);
@@ -84,7 +91,7 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const loadVerificationData = async () => {
+  const loadVerificationData = useCallback(async () => {
     try {
       setLoading(true);
       const [statusRes, docsRes] = await Promise.all([
@@ -92,25 +99,26 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
         getPropertyDocuments(propertyId),
       ]);
       setOwnerStatus(statusRes as unknown as OwnerStatus);
-      setDocuments((docsRes as any).documents || []);
-      if ((docsRes as any).propertyVerification) {
-        setIsOwner((docsRes as any).propertyVerification.isOwner ?? true);
-        setOperatorRole((docsRes as any).propertyVerification.operatorRole || "owner");
-        setPropertyStatus((docsRes as any).propertyVerification.status || "draft");
-        setRejectionReason((docsRes as any).propertyVerification.rejectionReason || "");
+      const parsedDocs = docsRes as unknown as PropertyVerificationRes;
+      setDocuments(parsedDocs.documents || []);
+      if (parsedDocs.propertyVerification) {
+        setIsOwner(parsedDocs.propertyVerification.isOwner ?? true);
+        setOperatorRole(parsedDocs.propertyVerification.operatorRole || "owner");
+        setPropertyStatus(parsedDocs.propertyVerification.status || "draft");
+        setRejectionReason(parsedDocs.propertyVerification.rejectionReason || "");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load verification data:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [propertyId]);
 
   useEffect(() => {
     if (user) {
       loadVerificationData();
     }
-  }, [user, propertyId]);
+  }, [user, loadVerificationData]);
 
   const handleVerifyGovId = async () => {
     setVerifyingGovId(true);
@@ -118,8 +126,8 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
     try {
       await verifyOwnerIdentity(selectedGovIdType);
       await loadVerificationData();
-    } catch (err: any) {
-      setGovIdError(err.message || "Failed to verify government ID.");
+    } catch (err: unknown) {
+      setGovIdError(err instanceof Error ? err.message : "Failed to verify government ID.");
     } finally {
       setVerifyingGovId(false);
     }
@@ -132,8 +140,8 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
     try {
       await verifyOwnerPAN({ panNumber, panName });
       await loadVerificationData();
-    } catch (err: any) {
-      setPanError(err.message || "Failed to verify PAN.");
+    } catch (err: unknown) {
+      setPanError(err instanceof Error ? err.message : "Failed to verify PAN.");
     } finally {
       setVerifyingPan(false);
     }
@@ -142,13 +150,10 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
   const handleSaveOperatorMode = async (ownerChoice: boolean, roleChoice: string) => {
     setIsOwner(ownerChoice);
     setOperatorRole(roleChoice);
-    setSavingOperatorMode(true);
     try {
       await setOperatorMode(propertyId, { isOwner: ownerChoice, operatorRole: roleChoice });
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-    } finally {
-      setSavingOperatorMode(false);
     }
   };
 
@@ -178,8 +183,8 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
           fileBase64,
         });
         await loadVerificationData();
-      } catch (err: any) {
-        setUploadError(err.message || "Failed to upload document.");
+      } catch (err: unknown) {
+        setUploadError(err instanceof Error ? err.message : "Failed to upload document.");
       } finally {
         setUploadingType(null);
       }
@@ -192,8 +197,8 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
     try {
       await deletePropertyDocument(propertyId, docId);
       await loadVerificationData();
-    } catch (err: any) {
-      alert(err.message || "Failed to remove document.");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to remove document.");
     }
   };
 
@@ -204,8 +209,8 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
       await submitPropertyForReview(propertyId);
       setSubmitSuccess(true);
       await loadVerificationData();
-    } catch (err: any) {
-      setSubmitError(err.message || "Submission failed.");
+    } catch (err: unknown) {
+      setSubmitError(err instanceof Error ? err.message : "Submission failed.");
     } finally {
       setSubmitting(false);
     }
@@ -220,7 +225,6 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
     );
   }
 
-  // Calculate overall progress percentage
   let progress = 0;
   if (ownerStatus?.governmentIdStatus === "verified") progress += 25;
   if (ownerStatus?.panStatus === "verified") progress += 25;
@@ -234,7 +238,6 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
         Back to Property Management
       </Link>
 
-      {/* Progress & Header */}
       <div className="mb-8 rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
@@ -327,7 +330,7 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setSelectedGovIdType(item.id as any)}
+                    onClick={() => setSelectedGovIdType(item.id as "aadhaar" | "passport" | "driving_licence" | "voter_id")}
                     className={`rounded-xl border p-3 text-center text-sm font-medium transition-all ${
                       selectedGovIdType === item.id
                         ? "border-brand bg-brand/10 text-brand shadow-xs"
@@ -494,7 +497,6 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
           <DocumentUploadCard
             title="1. Address Proof *"
             description="Utility bill, Property Tax receipt, Electricity bill or Official municipal document showing property address."
-            documentType="address_proof"
             existingDoc={documents.find((d) => d.documentType === "address_proof")}
             uploading={uploadingType === "address_proof"}
             onUpload={(file) => handleFileUpload("address_proof", file)}
@@ -509,7 +511,6 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
                 ? "Registered Sale Deed, Property Tax, Index II, or Title deed."
                 : "Registered Lease agreement, Owner NOC, or Management Authorization letter."
             }
-            documentType={isOwner ? "ownership" : "lease_agreement"}
             existingDoc={documents.find((d) =>
               ["ownership", "lease_agreement", "owner_authorization", "noc"].includes(d.documentType)
             )}
@@ -522,7 +523,6 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
           <DocumentUploadCard
             title="3. GST / Shop & Establishment (Optional)"
             description="Business registration certificate or GST certificate for commercial hotels/PGs."
-            documentType="gst"
             existingDoc={documents.find((d) => ["gst", "shop_establishment"].includes(d.documentType))}
             uploading={uploadingType === "gst"}
             onUpload={(file) => handleFileUpload("gst", file)}
@@ -585,7 +585,6 @@ export default function PropertyVerificationPage({ params }: { params: Promise<{
 function DocumentUploadCard({
   title,
   description,
-  documentType,
   existingDoc,
   uploading,
   onUpload,
@@ -593,7 +592,6 @@ function DocumentUploadCard({
 }: {
   title: string;
   description: string;
-  documentType: string;
   existingDoc?: DocumentItem;
   uploading: boolean;
   onUpload: (file: File) => void;
