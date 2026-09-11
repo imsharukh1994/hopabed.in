@@ -34,9 +34,9 @@ export function PropertyCard({ property }: { property: SearchProperty }) {
         </Link>
         
         {/* Verified Badge */}
-        <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold tracking-wide text-ink-soft shadow-sm backdrop-blur-sm">
-          <ShieldCheck className="h-3 w-3 text-brand" />
-          Verified
+        <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-emerald-600/95 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-sm backdrop-blur-sm">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Verified Property
         </span>
 
         <button

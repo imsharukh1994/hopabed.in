@@ -6,7 +6,7 @@ export interface IHost {
   propertyCount: number;
   averageRating: number;
   reviewCount: number;
-  verificationStatus: 'pending' | 'verified' | 'rejected';
+  verificationStatus: 'unverified' | 'pending' | 'verified' | 'rejected' | 'failed';
   kycStatus: 'not_started' | 'pending' | 'verified' | 'rejected';
   bio?: string;
   isActive: boolean;
@@ -25,8 +25,8 @@ const hostSchema = new Schema<IHost>(
     reviewCount: { type: Number, default: 0, min: 0 },
     verificationStatus: {
       type: String,
-      enum: ['pending', 'verified', 'rejected'],
-      default: 'pending',
+      enum: ['unverified', 'pending', 'verified', 'rejected', 'failed'],
+      default: 'unverified',
     },
     kycStatus: {
       type: String,

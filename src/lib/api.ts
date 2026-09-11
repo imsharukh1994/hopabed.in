@@ -313,3 +313,129 @@ export async function updateRoomAvailability(propertyId: string, roomId: string,
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to update calendar.");
 	return body.data;
 }
+
+export async function getOwnerVerificationStatus() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/owner/status`, {
+		headers: { Authorization: `Bearer ${token}` },
+		cache: "no-store",
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to fetch verification status.");
+	return body.data;
+}
+
+export async function verifyOwnerIdentity(idType: "aadhaar" | "passport" | "driving_licence" | "voter_id") {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/owner/identity`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ idType }),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Identity verification failed.");
+	return body.data;
+}
+
+export async function verifyOwnerPAN(input: { panNumber: string; panName: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/owner/pan`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "PAN verification failed.");
+	return body.data;
+}
+
+export async function setOperatorMode(propertyId: string, input: { isOwner: boolean; operatorRole: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/property/${propertyId}/operator-mode`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to save operator status.");
+	return body.data;
+}
+
+export async function uploadPropertyDocument(propertyId: string, input: { documentType: string; originalFilename: string; mimeType: string; fileBase64: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/property/${propertyId}/documents`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Document upload failed.");
+	return body.data;
+}
+
+export async function getPropertyDocuments(propertyId: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/property/${propertyId}/documents`, {
+		headers: { Authorization: `Bearer ${token}` },
+		cache: "no-store",
+	});
+	const body = (await response.json()) as { data?: { documents: Array<Record<string, unknown>>; propertyVerification?: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to fetch property documents.");
+	return body.data;
+}
+
+export async function deletePropertyDocument(propertyId: string, docId: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/property/${propertyId}/documents/${docId}`, {
+		method: "DELETE",
+		headers: { Authorization: `Bearer ${token}` },
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to delete document.");
+	return body.data;
+}
+
+export async function submitPropertyForReview(propertyId: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/property/${propertyId}/submit`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Submission failed.");
+	return body.data;
+}
+
+export async function getAdminVerificationQueue(status = "PENDING_REVIEW") {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/verification/queue?status=${status}`, {
+		headers: { Authorization: `Bearer ${token}` },
+		cache: "no-store",
+	});
+	const body = (await response.json()) as { data?: { queue: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load verification queue.");
+	return body.data.queue;
+}
+
+export async function reviewPropertyVerification(propertyId: string, input: { status: "VERIFIED" | "CHANGES_REQUESTED" | "REJECTED"; reason?: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/properties/${propertyId}/verify`, {
+		method: "PUT",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to review property.");
+	return body.data;
+}
+

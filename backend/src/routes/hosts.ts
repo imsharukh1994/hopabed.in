@@ -63,6 +63,34 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   }
 });
 
+router.get('/stats', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await Host.findOne({ user: req.auth?.userId });
+    if (!host) {
+      res.json({ success: true, data: { totalProperties: 0, totalBookings: 0, totalEarnings: 0 } });
+      return;
+    }
+
+    const [totalProperties, bookings] = await Promise.all([
+      Property.countDocuments({ host: host._id }),
+      Booking.find({ host: host._id, status: { $ne: 'cancelled' } }),
+    ]);
+
+    const totalEarnings = bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+
+    res.json({
+      success: true,
+      data: {
+        totalProperties,
+        totalBookings: bookings.length,
+        totalEarnings,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/properties', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
   try {
     const host = await Host.findOne({ user: req.auth?.userId });

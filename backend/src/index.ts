@@ -11,6 +11,7 @@ import bookingsRouter from './routes/bookings.js';
 import hostsRouter from './routes/hosts.js';
 import paymentsRouter from './routes/payments.js';
 import adminRouter from './routes/admin.js';
+import verificationRouter from './routes/verification.js';
 
 export const app = express();
 
@@ -31,8 +32,8 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({
@@ -48,6 +49,7 @@ app.use('/api/bookings', bookingsRouter);
 app.use('/api/hosts', hostsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/verification', verificationRouter);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled server error:', err);

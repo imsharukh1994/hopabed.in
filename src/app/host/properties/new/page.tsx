@@ -7,7 +7,7 @@ import { useAuthModal } from "@/components/AuthProvider";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
-const PROPERTY_TYPES = ["Hotel", "Villa", "Homestay", "Apartment", "Resort", "Guesthouse"];
+const PROPERTY_TYPES = ["Hotel", "PG", "Hostel", "Homestay", "Guesthouse", "Apartment", "Villa", "Resort"];
 const COMMON_AMENITIES = ["WiFi", "AC", "Pool", "Parking", "Kitchen", "TV", "Gym", "Breakfast Included"];
 
 export default function NewPropertyPage() {
@@ -47,9 +47,12 @@ export default function NewPropertyPage() {
       const property = await createProperty({
         ...formData,
         pricePerNight: Number(formData.pricePerNight),
+        bedrooms: 1,
+        bathrooms: 1,
+        maxGuests: 2,
       });
-      // Redirect to the property management page to add rooms
-      router.push(`/host/properties/${property._id}`);
+      // Redirect to verification & rooms step
+      router.push(`/host/properties/${property._id}/verification`);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || "Failed to create property.");

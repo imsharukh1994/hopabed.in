@@ -4,7 +4,17 @@ export interface IProperty {
   host: Types.ObjectId;
   title: string;
   slug: string;
-  propertyType: 'apartment' | 'villa' | 'studio' | 'house' | 'farmstay' | 'guesthouse';
+  propertyType:
+    | 'hotel'
+    | 'pg'
+    | 'hostel'
+    | 'homestay'
+    | 'guesthouse'
+    | 'apartment'
+    | 'villa'
+    | 'studio'
+    | 'house'
+    | 'farmstay';
   category: 'stay' | 'hostel' | 'resort' | 'homestay';
   city: string;
   locality: string;
@@ -28,7 +38,10 @@ export interface IProperty {
   isVerified: boolean;
   isPublished: boolean;
   isFeatured: boolean;
-  verificationStatus: 'DRAFT' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'SUSPENDED';
+  verificationStatus: 'DRAFT' | 'PENDING_REVIEW' | 'CHANGES_REQUESTED' | 'VERIFIED' | 'REJECTED' | 'SUSPENDED';
+  rejectionReason?: string;
+  isOperator?: boolean;
+  operatorRole?: 'owner' | 'lease_holder' | 'property_manager' | 'authorized_operator';
   primaryImage?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -43,7 +56,23 @@ const propertySchema = new Schema<IProperty>(
     slug: { type: String, required: true, trim: true, lowercase: true },
     propertyType: {
       type: String,
-      enum: ['apartment', 'villa', 'studio', 'house', 'farmstay', 'guesthouse'],
+      enum: [
+        'hotel',
+        'pg',
+        'hostel',
+        'homestay',
+        'guesthouse',
+        'apartment',
+        | 'villa',
+        'studio',
+        'house',
+        'farmstay',
+        'Hotel',
+        'PG',
+        'Hostel',
+        'Homestay',
+        'Guesthouse',
+      ],
       required: true,
     },
     category: {
@@ -85,8 +114,15 @@ const propertySchema = new Schema<IProperty>(
     isFeatured: { type: Boolean, default: false },
     verificationStatus: {
       type: String,
-      enum: ['DRAFT', 'PENDING_REVIEW', 'VERIFIED', 'REJECTED', 'SUSPENDED'],
+      enum: ['DRAFT', 'PENDING_REVIEW', 'CHANGES_REQUESTED', 'VERIFIED', 'REJECTED', 'SUSPENDED'],
       default: 'DRAFT',
+    },
+    rejectionReason: { type: String, trim: true },
+    isOperator: { type: Boolean, default: false },
+    operatorRole: {
+      type: String,
+      enum: ['owner', 'lease_holder', 'property_manager', 'authorized_operator'],
+      default: 'owner',
     },
     primaryImage: { type: String, trim: true },
   },
