@@ -183,7 +183,7 @@ function BookingsList() {
         </div>
       )}
 
-      {checkoutData && <PayUCheckoutForm checkoutData={checkoutData} />}
+      {checkoutData && payingBookingId && <PayUCheckoutForm checkoutData={checkoutData} bookingId={payingBookingId} />}
     </div>
   );
 }

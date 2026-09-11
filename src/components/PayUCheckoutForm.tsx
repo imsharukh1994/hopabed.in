@@ -1,42 +1,54 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { verifyPayUPayment } from "@/lib/api";
 
 export interface PayUCheckoutData {
-  payuUrl: string;
+  orderId: string;
+  amount: number;
+  currency: string;
   key: string;
-  txnid: string;
-  amount: string;
-  productinfo: string;
-  firstname: string;
-  email: string;
-  phone: string;
-  surl: string;
-  furl: string;
-  hash: string;
+  bookingId?: string; // We'll need this to verify
 }
 
-export function PayUCheckoutForm({ checkoutData }: { checkoutData: PayUCheckoutData }) {
-  const formRef = useRef<HTMLFormElement>(null);
-
+export function PayUCheckoutForm({ checkoutData, bookingId }: { checkoutData: PayUCheckoutData; bookingId: string }) {
   useEffect(() => {
-    if (formRef.current) {
-      formRef.current.submit();
-    }
-  }, [checkoutData]);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => {
+      const options = {
+        key: checkoutData.key,
+        amount: checkoutData.amount * 100, // paise
+        currency: checkoutData.currency,
+        name: "Hopebed",
+        description: "Booking Payment",
+        order_id: checkoutData.orderId,
+        handler: async function (response: any) {
+          try {
+            await verifyPayUPayment(bookingId, response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
+            window.location.href = "/bookings?success=true";
+          } catch (err) {
+            window.location.href = "/bookings?error=payment_failed";
+          }
+        },
+        theme: {
+          color: "#0a2540",
+        },
+        modal: {
+          ondismiss: function () {
+            window.location.href = "/bookings?error=payment_cancelled";
+          },
+        },
+      };
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    };
+    document.body.appendChild(script);
 
-  return (
-    <form ref={formRef} action={checkoutData.payuUrl} method="POST" className="hidden">
-      <input type="hidden" name="key" value={checkoutData.key} />
-      <input type="hidden" name="txnid" value={checkoutData.txnid} />
-      <input type="hidden" name="amount" value={checkoutData.amount} />
-      <input type="hidden" name="productinfo" value={checkoutData.productinfo} />
-      <input type="hidden" name="firstname" value={checkoutData.firstname} />
-      <input type="hidden" name="email" value={checkoutData.email} />
-      <input type="hidden" name="phone" value={checkoutData.phone} />
-      <input type="hidden" name="surl" value={checkoutData.surl} />
-      <input type="hidden" name="furl" value={checkoutData.furl} />
-      <input type="hidden" name="hash" value={checkoutData.hash} />
-    </form>
-  );
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [checkoutData, bookingId]);
+
+  return null;
 }

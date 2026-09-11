@@ -30,7 +30,7 @@ export default async function StaysPage({
 
     if (res.ok && body.data?.properties) {
       properties = body.data.properties.map((p: Record<string, unknown>) => ({
-        id: String(p._id),
+        id: String(p.id || p._id),
         title: String(p.title),
         city: String(p.city),
         locality: String(p.locality),

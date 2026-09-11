@@ -15,7 +15,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-bold text-ink-soft">2. Guest Bookings & Payments</h2>
           <p className="mt-2 leading-relaxed text-muted">
-            Bookings are subject to room availability. Payments are processed securely via PayU payment gateway. Upon successful payment verification, a digital QR Stay Pass is issued to the guest for check-in.
+            Bookings are subject to room availability. Payments are processed securely via Razorpay payment gateway. Upon successful payment verification, a digital QR Stay Pass is issued to the guest for check-in.
           </p>
         </section>
 
