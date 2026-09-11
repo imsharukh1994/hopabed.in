@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DollarSign, ShieldCheck, CreditCard, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { DollarSign, ShieldCheck, CreditCard, Clock, ArrowRight } from "lucide-react";
 
 export default function HostPricingPage() {
   return (

@@ -101,14 +101,3 @@ function Social({ href, label, children }: { href: string; label: string; childr
     </a>
   );
 }
-
-function GooglePlayLogo() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-7 w-7 shrink-0" aria-hidden>
-      <path fill="#4285F4" d="M3.18 20.82 13.4 12.3v-.6L3.18 3.18C2.86 3.5 2.7 3.96 2.7 4.54v14.92c0 .58.16 1.04.48 1.36Z" />
-      <path fill="#FBBC04" d="m16.7 8.86-3.3 3.2v.6l3.3 3.2.08.04 3.9-2.22c1.12-.64 1.12-1.68 0-2.32l-3.9-2.22z" />
-      <path fill="#34A853" d="M16.78 15.9 13.4 12.6 2.7 21.46c.38.4 1 .45 1.7.05L16.78 15.9Z" />
-      <path fill="#EA4335" d="M16.78 8.1 4.4 1.5C3.7 1.1 3.08 1.16 2.7 1.54L13.4 11.4 16.78 8.1Z" />
-    </svg>
-  );
-}

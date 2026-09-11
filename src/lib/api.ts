@@ -9,6 +9,7 @@ export type SearchProperty = {
 	primaryImage?: string;
 	pricePerNight: number;
 	rating?: number;
+	isVerified?: boolean;
 };
 
 export type PropertyDetails = SearchProperty & {
@@ -130,6 +131,7 @@ export async function searchProperties(params: URLSearchParams): Promise<SearchP
 		id: String(property._id), title: String(property.title), city: String(property.city), locality: String(property.locality),
 		propertyType: String(property.propertyType), primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined,
 		pricePerNight: Number(property.pricePerNight), rating: typeof property.rating === "number" ? property.rating : undefined,
+		isVerified: Boolean(property.isVerified && property.verificationStatus === 'VERIFIED'),
 	}));
 }
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, ShieldCheck, ArrowRight, Building2, FileCheck, Layers, DollarSign } from "lucide-react";
+import { ShieldCheck, ArrowRight, Building2, FileCheck, Layers, DollarSign } from "lucide-react";
 
 export default function HostResourcesPage() {
   return (
@@ -57,7 +57,7 @@ export default function HostResourcesPage() {
 
         <div className="mt-12 rounded-2xl bg-brand p-8 text-center text-white shadow-lg">
           <h2 className="text-2xl font-bold">Ready to welcome your first guests?</h2>
-          <p className="mt-2 text-sm text-white/80">List your property today and get verified on India's trusted stay marketplace.</p>
+          <p className="mt-2 text-sm text-white/80">List your property today and get verified on India&apos;s trusted stay marketplace.</p>
           <Link
             href="/host"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-brand transition hover:bg-canvas"
