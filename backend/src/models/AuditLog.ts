@@ -2,7 +2,19 @@ import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoos
 
 export interface IAuditLog {
   actor: Types.ObjectId;
-  action: 'PROPERTY_VERIFIED' | 'PROPERTY_REJECTED' | 'PROPERTY_SUSPENDED' | 'HOST_VERIFIED' | 'HOST_REJECTED' | 'SETTINGS_UPDATED';
+  action:
+    | 'PROPERTY_VERIFIED'
+    | 'PROPERTY_REJECTED'
+    | 'PROPERTY_SUSPENDED'
+    | 'PROPERTY_CHANGES_REQUESTED'
+    | 'PROPERTY_SUBMITTED'
+    | 'PROPERTY_RESUBMITTED'
+    | 'HOST_VERIFIED'
+    | 'HOST_REJECTED'
+    | 'HOST_SUSPENDED'
+    | 'HOST_SUBMITTED'
+    | 'HOST_RESUBMITTED'
+    | 'SETTINGS_UPDATED';
   targetType: 'Property' | 'Host' | 'System';
   targetId?: Types.ObjectId;
   metadata?: Record<string, unknown>;
@@ -17,7 +29,20 @@ const auditLogSchema = new Schema<IAuditLog>(
     actor: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     action: {
       type: String,
-      enum: ['PROPERTY_VERIFIED', 'PROPERTY_REJECTED', 'PROPERTY_SUSPENDED', 'HOST_VERIFIED', 'HOST_REJECTED', 'SETTINGS_UPDATED'],
+      enum: [
+        'PROPERTY_VERIFIED',
+        'PROPERTY_REJECTED',
+        'PROPERTY_SUSPENDED',
+        'PROPERTY_CHANGES_REQUESTED',
+        'PROPERTY_SUBMITTED',
+        'PROPERTY_RESUBMITTED',
+        'HOST_VERIFIED',
+        'HOST_REJECTED',
+        'HOST_SUSPENDED',
+        'HOST_SUBMITTED',
+        'HOST_RESUBMITTED',
+        'SETTINGS_UPDATED',
+      ],
       required: true,
     },
     targetType: {

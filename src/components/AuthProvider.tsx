@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getCurrentUser } from "@/lib/api";
 
-export type AuthUser = { id: string; name: string; email: string; role: string; avatarUrl?: string };
+export type AuthUser = { id: string; name: string; email: string; role: string; phone?: string; avatarUrl?: string };
 
 type AuthContextValue = {
   isOpen: boolean;

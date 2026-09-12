@@ -336,3 +336,42 @@ export async function sendOtpEmail(data: { email: string; otp: string }) {
   return sendEmail({ to: data.email, subject, html });
 }
 
+// 9. Host Verification Status Notification (Verified / Rejected / Suspended)
+export async function sendHostVerificationStatusEmail(data: {
+  hostName: string;
+  hostEmail: string;
+  status: 'verified' | 'rejected' | 'suspended' | 'pending';
+  rejectionReason?: string;
+}) {
+  const isVerified = data.status === 'verified';
+  const isSuspended = data.status === 'suspended';
+  const subject = isVerified
+    ? `Host Identity Verified — Welcome to Hopebed Host Network! 🛡️`
+    : isSuspended
+    ? `Host Account Suspended — Hopebed`
+    : `Host Verification Update — Hopebed`;
+
+  const html = buildEmailTemplate(
+    subject,
+    `
+    <h2 style="color:${isVerified ? '#0d9488' : '#e11d48'};">
+      ${isVerified ? 'Host Verification Approved! 🎉' : isSuspended ? 'Host Account Suspended' : 'Host Verification Update'}
+    </h2>
+    <p>Dear ${data.hostName},</p>
+    <p>Your Hopebed host identity verification application status is now: <strong>${data.status.toUpperCase()}</strong>.</p>
+    
+    <div class="card" style="border-left: 4px solid ${isVerified ? '#0d9488' : '#e11d48'};">
+      <p style="margin:0;"><strong>Verification Status:</strong> ${data.status.toUpperCase()}</p>
+      ${data.rejectionReason ? `<p style="margin:8px 0 0 0; color:#475569;"><strong>Notes / Reason:</strong> ${data.rejectionReason}</p>` : ''}
+    </div>
+
+    ${
+      isVerified
+        ? '<p>You are now a verified host on Hopebed! You can submit properties for property verification and list stays on the platform.</p><a href="' + env.FRONTEND_URL + '/host" class="btn">Go to Host Dashboard</a>'
+        : '<p>Please log in to your host account to view details or update your information.</p><a href="' + env.FRONTEND_URL + '/host/verification" class="btn" style="background-color:#475569;">View Verification Status</a>'
+    }
+    `
+  );
+  return sendEmail({ to: data.hostEmail, subject, html });
+}
+

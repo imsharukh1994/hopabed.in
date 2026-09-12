@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import { z } from 'zod';
 import { Booking } from '../models/Booking.js';
 import { Property } from '../models/Property.js';
+import { Host } from '../models/Host.js';
 import { Room } from '../models/Room.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 
@@ -52,10 +53,16 @@ router.get('/search', async (req, res, next) => {
       ...dateSchema.shape,
     }).parse(req.query);
     const nights = validateDates(query.checkIn, query.checkOut);
+    
+    // Server-Side Public Property Rule: Verified Property + Verified Host + Active Property
+    const verifiedHosts = await Host.find({ verificationStatus: 'verified', isActive: true }).select('_id').lean();
+    const verifiedHostIds = verifiedHosts.map((h) => h._id);
+
     const propertyFilter: Record<string, unknown> = {
       verificationStatus: 'VERIFIED',
       isVerified: true,
       isPublished: true,
+      host: { $in: verifiedHostIds },
     };
     if (query.destination) {
       propertyFilter.$or = [
@@ -92,6 +99,12 @@ router.get('/:id', async (req, res, next) => {
       res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
       return;
     }
+    const hostDoc = await Host.findById(property.host).lean();
+    if (!hostDoc || hostDoc.verificationStatus !== 'verified' || !hostDoc.isActive) {
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not available.' } });
+      return;
+    }
+
     const rooms = await Room.find({ property: property._id, isActive: true }).lean();
     res.json({ success: true, data: { property, rooms } });
   } catch (error) { next(error); }
@@ -112,8 +125,12 @@ router.post('/:id/bookings', requireAuth, async (req: AuthenticatedRequest, res,
     let booking;
     await session.withTransaction(async () => {
       const property = await Property.findOne({ _id: propertyId, verificationStatus: 'VERIFIED', isVerified: true, isPublished: true }).session(session);
+      if (!property) throw new Error('ROOM_UNAVAILABLE');
+      const hostDoc = await Host.findById(property.host).session(session);
+      if (!hostDoc || hostDoc.verificationStatus !== 'verified' || !hostDoc.isActive) throw new Error('ROOM_UNAVAILABLE');
+
       const room = await Room.findOneAndUpdate({ _id: input.roomId, property: propertyId, isActive: true }, { $inc: { __v: 1 } }, { new: true }).session(session);
-      if (!property || !room || input.guests > room.capacity) throw new Error('ROOM_UNAVAILABLE');
+      if (!room || input.guests > room.capacity) throw new Error('ROOM_UNAVAILABLE');
       const overlap = await Booking.aggregate([{ $match: { room: room._id, status: { $in: ['pending', 'confirmed', 'checked_in'] }, checkIn: { $lt: input.checkOut }, checkOut: { $gt: input.checkIn } } }]).session(session);
       const bookedCount = overlap.reduce((total, item) => total + (item.roomCount ?? 1), 0);
       if (bookedCount + input.roomCount > room.inventory) throw new Error('ROOM_UNAVAILABLE');

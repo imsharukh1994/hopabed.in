@@ -3,10 +3,12 @@ import { z } from 'zod';
 import { Types } from 'mongoose';
 import { requireAuth, requireRole, type AuthenticatedRequest } from '../middleware/auth.js';
 import { Host } from '../models/Host.js';
+import { User } from '../models/User.js';
 import { Property } from '../models/Property.js';
 import { OwnerVerification } from '../models/OwnerVerification.js';
 import { PropertyVerification } from '../models/PropertyVerification.js';
 import { PropertyVerificationDocument, type DocumentTypeEnum } from '../models/PropertyVerificationDocument.js';
+import { AuditLog } from '../models/AuditLog.js';
 import { verifyOwnerGovernmentId, verifyOwnerPAN } from '../services/verificationService.js';
 import { savePrivateDocument, getPrivateDocumentStream, deletePrivateDocument } from '../services/storageService.js';
 
@@ -16,10 +18,10 @@ const router = Router();
 router.use(requireAuth);
 
 /**
- * GET /api/verification/owner/status
- * Get owner identity verification status
+ * GET /api/verification/host or /api/verification/owner/status
+ * Get complete host verification status & personal info
  */
-router.get('/owner/status', async (req: AuthenticatedRequest, res, next) => {
+const getHostVerificationHandler = async (req: AuthenticatedRequest, res: any, next: any) => {
   try {
     const userId = req.auth?.userId;
     if (!userId) {
@@ -27,7 +29,8 @@ router.get('/owner/status', async (req: AuthenticatedRequest, res, next) => {
       return;
     }
 
-    const host = await Host.findOne({ user: userId });
+    const user = await User.findById(userId);
+    let host = await Host.findOne({ user: userId });
     if (!host) {
       res.json({
         success: true,
@@ -36,6 +39,9 @@ router.get('/owner/status', async (req: AuthenticatedRequest, res, next) => {
           ownerVerification: null,
           mobileVerified: true,
           status: 'unverified',
+          fullName: user?.name || '',
+          email: user?.email || '',
+          phone: user?.phone || '',
         },
       });
       return;
@@ -46,6 +52,10 @@ router.get('/owner/status', async (req: AuthenticatedRequest, res, next) => {
       record = await OwnerVerification.create({
         host: host._id,
         user: userId,
+        fullName: host.fullName || user?.name || '',
+        email: host.email || user?.email || '',
+        phone: host.phone || user?.phone || '',
+        address: host.address || '',
         governmentIdStatus: 'unverified',
         panStatus: 'unverified',
         verificationStatus: 'unverified',
@@ -57,21 +67,194 @@ router.get('/owner/status', async (req: AuthenticatedRequest, res, next) => {
       data: {
         isHost: true,
         hostId: host._id,
-        mobileVerified: true, // Phone authenticated / OTP verified
+        mobileVerified: true, // Authenticated user
+        fullName: record.fullName || host.fullName || user?.name || '',
+        dob: record.dob || host.dob || null,
+        phone: record.phone || host.phone || user?.phone || '',
+        email: record.email || host.email || user?.email || '',
+        address: record.address || host.address || '',
         governmentIdType: record.governmentIdType,
         governmentIdStatus: record.governmentIdStatus,
         panStatus: record.panStatus,
         panNumberMasked: record.panNumberMasked,
         panName: record.panName,
-        verificationStatus: record.verificationStatus,
+        verificationStatus: host.verificationStatus || record.verificationStatus || 'unverified',
+        submittedAt: host.submittedAt || record.submittedAt,
         verifiedAt: record.verifiedAt,
-        failureReason: record.failureReason,
+        reviewedAt: host.reviewedAt || record.reviewedAt,
+        rejectionReason: host.rejectionReason || record.rejectionReason || record.failureReason,
+        verificationNotes: host.verificationNotes || record.verificationNotes,
       },
     });
   } catch (error) {
     next(error);
   }
-});
+};
+
+router.get('/host', getHostVerificationHandler);
+router.get('/owner/status', getHostVerificationHandler);
+
+/**
+ * POST or PUT /api/verification/host
+ * Save/update host basic personal information
+ */
+const updateHostInfoHandler = async (req: AuthenticatedRequest, res: any, next: any) => {
+  try {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: { message: 'Authentication required' } });
+      return;
+    }
+
+    const input = z
+      .object({
+        fullName: z.string().trim().min(2).max(120),
+        dob: z.string().optional(),
+        phone: z.string().trim().optional(),
+        email: z.string().trim().email().optional(),
+        address: z.string().trim().min(5).max(500),
+      })
+      .parse(req.body);
+
+    let host = await Host.findOne({ user: userId });
+    if (!host) {
+      [host] = await Host.create([
+        {
+          user: userId,
+          fullName: input.fullName,
+          phone: input.phone,
+          email: input.email,
+          address: input.address,
+          dob: input.dob ? new Date(input.dob) : undefined,
+          verificationStatus: 'unverified',
+          kycStatus: 'not_started',
+        },
+      ]);
+      await User.findByIdAndUpdate(userId, { role: 'host' });
+    } else {
+      host.fullName = input.fullName;
+      if (input.phone) host.phone = input.phone;
+      if (input.email) host.email = input.email;
+      host.address = input.address;
+      if (input.dob) host.dob = new Date(input.dob);
+      await host.save();
+    }
+
+    let record = await OwnerVerification.findOne({ host: host._id });
+    if (!record) {
+      record = await OwnerVerification.create({
+        host: host._id,
+        user: userId,
+        fullName: input.fullName,
+        phone: input.phone,
+        email: input.email,
+        address: input.address,
+        dob: input.dob ? new Date(input.dob) : undefined,
+        governmentIdStatus: 'unverified',
+        panStatus: 'unverified',
+        verificationStatus: 'unverified',
+      });
+    } else {
+      record.fullName = input.fullName;
+      if (input.phone) record.phone = input.phone;
+      if (input.email) record.email = input.email;
+      record.address = input.address;
+      if (input.dob) record.dob = new Date(input.dob);
+      await record.save();
+    }
+
+    res.json({
+      success: true,
+      data: {
+        message: 'Host personal information saved successfully.',
+        host: {
+          fullName: host.fullName,
+          dob: host.dob,
+          phone: host.phone,
+          email: host.email,
+          address: host.address,
+          verificationStatus: host.verificationStatus,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+router.post('/host', updateHostInfoHandler);
+router.put('/host', updateHostInfoHandler);
+
+/**
+ * POST /api/verification/host/submit
+ * Submit Host Verification application for Admin review
+ */
+const submitHostVerificationHandler = async (req: AuthenticatedRequest, res: any, next: any) => {
+  try {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: { message: 'Authentication required' } });
+      return;
+    }
+
+    const host = await Host.findOne({ user: userId });
+    if (!host) {
+      res.status(404).json({ success: false, error: { message: 'Host profile not found. Please complete personal information first.' } });
+      return;
+    }
+
+    if (!host.fullName || !host.address) {
+      res.status(400).json({
+        success: false,
+        error: { code: 'BASIC_INFO_INCOMPLETE', message: 'Please complete your Full Name and Address before submitting for verification.' },
+      });
+      return;
+    }
+
+    const record = await OwnerVerification.findOne({ host: host._id });
+    if (!record || record.governmentIdStatus !== 'verified' || record.panStatus !== 'verified') {
+      res.status(400).json({
+        success: false,
+        error: { code: 'KYC_INCOMPLETE', message: 'Please complete both Government ID and PAN verification before submitting.' },
+      });
+      return;
+    }
+
+    const now = new Date();
+    host.verificationStatus = 'pending';
+    host.kycStatus = 'pending';
+    host.submittedAt = now;
+    host.rejectionReason = undefined;
+    await host.save();
+
+    record.verificationStatus = 'pending';
+    record.submittedAt = now;
+    record.rejectionReason = undefined;
+    await record.save();
+
+    await AuditLog.create({
+      actor: userId,
+      action: 'HOST_SUBMITTED',
+      targetType: 'Host',
+      targetId: host._id,
+      metadata: { submittedAt: now },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        message: 'Host verification application submitted successfully for admin review.',
+        verificationStatus: host.verificationStatus,
+        submittedAt: host.submittedAt,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+router.post('/host/submit', submitHostVerificationHandler);
+router.post('/host/resubmit', submitHostVerificationHandler);
 
 /**
  * POST /api/verification/owner/identity
@@ -414,7 +597,7 @@ router.get('/documents/:docId/stream', async (req: AuthenticatedRequest, res, ne
  * POST /api/verification/property/:propertyId/submit
  * Submit property and owner verification for admin review
  */
-router.post('/property/:propertyId/submit', async (req: AuthenticatedRequest, res, next) => {
+const submitPropertyVerificationHandler = async (req: AuthenticatedRequest, res: any, next: any) => {
   try {
     const userId = req.auth?.userId;
     const propertyId = Array.isArray(req.params.propertyId) ? req.params.propertyId[0] : req.params.propertyId;
@@ -462,6 +645,7 @@ router.post('/property/:propertyId/submit', async (req: AuthenticatedRequest, re
       return;
     }
 
+    const now = new Date();
     // Update Property status to PENDING_REVIEW
     property.verificationStatus = 'PENDING_REVIEW';
     property.isPublished = false; // Cannot be LIVE until admin approves
@@ -475,12 +659,22 @@ router.post('/property/:propertyId/submit', async (req: AuthenticatedRequest, re
         isOwner: !property.isOperator,
         operatorRole: property.operatorRole || 'owner',
         status: 'pending',
+        submittedAt: now,
       });
     } else {
       verif.status = 'pending';
+      verif.submittedAt = now;
       verif.rejectionReason = undefined;
       await verif.save();
     }
+
+    await AuditLog.create({
+      actor: userId,
+      action: 'PROPERTY_SUBMITTED',
+      targetType: 'Property',
+      targetId: property._id,
+      metadata: { submittedAt: now },
+    });
 
     res.json({
       success: true,
@@ -493,6 +687,9 @@ router.post('/property/:propertyId/submit', async (req: AuthenticatedRequest, re
   } catch (error) {
     next(error);
   }
-});
+};
+
+router.post('/property/:propertyId/submit', submitPropertyVerificationHandler);
+router.post('/property/:propertyId/resubmit', submitPropertyVerificationHandler);
 
 export default router;

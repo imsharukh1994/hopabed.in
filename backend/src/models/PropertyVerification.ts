@@ -5,10 +5,13 @@ export interface IPropertyVerification {
   host: Types.ObjectId;
   isOwner: boolean;
   operatorRole: 'owner' | 'lease_holder' | 'property_manager' | 'authorized_operator';
-  status: 'draft' | 'pending' | 'verified' | 'changes_requested' | 'rejected';
+  status: 'draft' | 'pending' | 'verified' | 'changes_requested' | 'rejected' | 'suspended';
+  submittedAt?: Date;
   verifiedAt?: Date;
+  reviewedAt?: Date;
   reviewedBy?: Types.ObjectId;
   rejectionReason?: string;
+  verificationNotes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,12 +30,15 @@ const propertyVerificationSchema = new Schema<IPropertyVerification>(
     },
     status: {
       type: String,
-      enum: ['draft', 'pending', 'verified', 'changes_requested', 'rejected'],
+      enum: ['draft', 'pending', 'verified', 'changes_requested', 'rejected', 'suspended'],
       default: 'draft',
     },
+    submittedAt: { type: Date },
     verifiedAt: { type: Date },
+    reviewedAt: { type: Date },
     reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     rejectionReason: { type: String, trim: true },
+    verificationNotes: { type: String, trim: true },
   },
   { timestamps: true }
 );

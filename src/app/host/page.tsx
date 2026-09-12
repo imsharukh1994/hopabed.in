@@ -140,12 +140,12 @@ export default function HostDashboardPage() {
               <ShieldCheck className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-ink-soft">Owner Verification Status</h2>
-              <p className="text-xs text-muted">Identity compliance status for hosting on Hopebed.</p>
+              <h2 className="text-lg font-bold text-ink-soft">Host Identity Verification</h2>
+              <p className="text-xs text-muted">Verification state: <strong className="uppercase font-bold text-brand">{verifStatus?.verificationStatus || "unverified"}</strong></p>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
             <span className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">
               <CheckCircle2 className="h-3.5 w-3.5" /> Mobile Verified
             </span>
@@ -169,6 +169,13 @@ export default function HostDashboardPage() {
                 <Clock className="h-3.5 w-3.5" /> PAN Pending
               </span>
             )}
+
+            <Link
+              href="/host/verification"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-brand/10 px-4 py-2 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white"
+            >
+              Manage Verification →
+            </Link>
           </div>
         </div>
       </div>

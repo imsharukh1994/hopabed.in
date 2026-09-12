@@ -124,9 +124,15 @@ export async function getCurrentUser(token: string): Promise<AuthResponse["data"
 }
 
 export async function searchProperties(params: URLSearchParams): Promise<SearchProperty[]> {
-	const response = await fetch(`${API_BASE_URL}/api/properties/search?${params.toString()}`, { cache: "no-store" });
+	let response: Response;
+	try {
+		response = await fetch(`${API_BASE_URL}/api/properties/search?${params.toString()}`, { cache: "no-store" });
+	} catch {
+		console.warn("[Hopebed API] Backend API is unreachable or offline at:", API_BASE_URL);
+		return [];
+	}
 	const body = (await response.json()) as { data?: { properties: Array<Record<string, unknown>> }; error?: { message?: string } };
-	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't load available stays.");
+	if (!response.ok || !body.data) return [];
 	return body.data.properties.map((property) => ({
 		id: String(property.id || property._id), title: String(property.title), city: String(property.city), locality: String(property.locality),
 		propertyType: String(property.propertyType), primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined,
@@ -136,7 +142,12 @@ export async function searchProperties(params: URLSearchParams): Promise<SearchP
 }
 
 export async function getPropertyDetails(id: string): Promise<PropertyDetails> {
-	const response = await fetch(`${API_BASE_URL}/api/properties/${id}`, { cache: "no-store" });
+	let response: Response;
+	try {
+		response = await fetch(`${API_BASE_URL}/api/properties/${id}`, { cache: "no-store" });
+	} catch {
+		throw new Error("Hopebed API is not running or unreachable.");
+	}
 	const body = (await response.json()) as { data?: { property: Record<string, unknown>; rooms: Array<Record<string, unknown>> }; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't load this stay.");
 	const property = body.data.property;
@@ -484,7 +495,7 @@ export async function getAdminVerificationQueue(status = "PENDING_REVIEW") {
 	return body.data.queue;
 }
 
-export async function reviewPropertyVerification(propertyId: string, input: { status: "VERIFIED" | "CHANGES_REQUESTED" | "REJECTED"; reason?: string }) {
+export async function reviewPropertyVerification(propertyId: string, input: { status: "VERIFIED" | "CHANGES_REQUESTED" | "REJECTED" | "SUSPENDED"; reason?: string }) {
 	const token = localStorage.getItem("hopebed_access_token");
 	if (!token) throw new Error("Please log in.");
 	const response = await fetch(`${API_BASE_URL}/api/admin/properties/${propertyId}/verify`, {
@@ -496,4 +507,105 @@ export async function reviewPropertyVerification(propertyId: string, input: { st
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to review property.");
 	return body.data;
 }
+
+export async function getHostVerification() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/host`, {
+		headers: { Authorization: `Bearer ${token}` },
+		cache: "no-store",
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to fetch host verification.");
+	return body.data;
+}
+
+export async function updateHostInfo(input: { fullName: string; dob?: string; phone?: string; email?: string; address: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/host`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to save host info.");
+	return body.data;
+}
+
+export async function submitHostVerification() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/verification/host/submit`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to submit host verification.");
+	return body.data;
+}
+
+export async function getAdminHostQueue(status = "pending") {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/verifications/hosts?status=${status}`, {
+		headers: { Authorization: `Bearer ${token}` },
+		cache: "no-store",
+	});
+	const body = (await response.json()) as { data?: { hosts: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load host verification queue.");
+	return body.data.hosts;
+}
+
+export async function approveAdminHost(hostId: string, notes?: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/verifications/hosts/${hostId}/approve`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ notes }),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to approve host.");
+	return body.data;
+}
+
+export async function rejectAdminHost(hostId: string, reason: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/verifications/hosts/${hostId}/reject`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ reason }),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to reject host.");
+	return body.data;
+}
+
+export async function suspendAdminHost(hostId: string, reason: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/verifications/hosts/${hostId}/suspend`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ reason }),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to suspend host.");
+	return body.data;
+}
+
+export async function getAdminAuditLogs() {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/admin/audit-logs`, {
+		headers: { Authorization: `Bearer ${token}` },
+		cache: "no-store",
+	});
+	const body = (await response.json()) as { data?: { logs: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to load audit logs.");
+	return body.data.logs;
+}
+
 

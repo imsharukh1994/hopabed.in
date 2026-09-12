@@ -25,7 +25,7 @@ export function PayUCheckoutForm({ checkoutData, bookingId }: { checkoutData: Pa
         order_id: checkoutData.orderId,
         handler: async function (response: any) {
           try {
-            await verifyPayUPayment(bookingId, response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature);
+            await verifyPayUPayment(bookingId);
             window.location.href = "/bookings?success=true";
           } catch (err) {
             window.location.href = "/bookings?error=payment_failed";
