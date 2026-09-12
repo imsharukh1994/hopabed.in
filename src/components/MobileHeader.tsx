@@ -45,8 +45,8 @@ export function MenuDrawer({ onClose }: { onClose: () => void }) {
           <Link href="/wishlist" onClick={onClose} className="rounded-lg px-2 py-2 hover:bg-mint">
             Wishlist
           </Link>
-          <Link href="/bookings" onClick={onClose} className="rounded-lg px-2 py-2 hover:bg-mint">
-            My bookings
+          <Link href="/profile?tab=bookings" onClick={onClose} className="rounded-lg px-2 py-2 hover:bg-mint">
+            My Bookings
           </Link>
           <Link href="/profile" onClick={onClose} className="rounded-lg px-2 py-2 hover:bg-mint">
             Profile

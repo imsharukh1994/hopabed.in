@@ -251,7 +251,7 @@ export default function HostVerificationPage() {
                   <span className="rounded-full bg-amber-200 px-3 py-0.5 text-xs font-bold text-amber-900">UNDER REVIEW</span>
                 </div>
                 <p className="mt-1 text-sm text-amber-800">
-                  Your host identity verification application is under review by Hopebed compliance managers. Submissions are usually processed within 24 hours.
+                  Your host identity verification application is under review by Hopebed compliance managers. Verification will take 2 to 4 business days.
                 </p>
                 {verif?.submittedAt && (
                   <p className="mt-2 text-xs text-amber-700 font-medium">
@@ -265,7 +265,7 @@ export default function HostVerificationPage() {
           <div className="rounded-2xl border border-red-300 bg-red-50 p-6 text-red-900 shadow-sm">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-sm">
-                <ShieldAlert className="h-7 w-7" />
+                <AlertCircle className="h-7 w-7" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
@@ -312,10 +312,18 @@ export default function HostVerificationPage() {
                 <ShieldCheck className="h-7 w-7" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Complete Host Verification</h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-xl font-bold">Complete Host Verification</h2>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-200 px-3 py-0.5 text-xs font-bold text-blue-950">
+                    <Clock className="h-3.5 w-3.5 text-brand" /> Review takes 2 to 4 days
+                  </span>
+                </div>
                 <p className="mt-1 text-sm text-blue-900">
                   Follow the steps below to complete your personal information, Government ID verification, and PAN verification to submit your application for review.
                 </p>
+                <div className="mt-3 flex items-center gap-2 rounded-xl bg-blue-100/90 px-3.5 py-2 text-xs font-bold text-blue-950 border border-blue-200 w-fit">
+                  <Clock className="h-4 w-4 text-brand shrink-0" /> Host Verification review will take 2 to 4 days after submission.
+                </div>
               </div>
             </div>
           </div>
